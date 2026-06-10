@@ -19,6 +19,19 @@ To **nie jest makieta** — to pełny, uruchamialny program: realny model danych
 
 ---
 
+## Uruchamianie jednym plikiem
+
+Najprościej: zainstaluj [Node 20](https://nodejs.org) i [Docker Desktop](https://docker.com), a potem **kliknij dwa razy**:
+
+- **Windows:** `start.bat`
+- **macOS / Linux:** `start.sh`
+
+Pierwsze uruchomienie robi wszystko samo: instaluje zależności, stawia bazę (lub używa już działającego Postgresa na :5432), generuje `.env` z sekretem, wgrywa schemat, zasiewa dane demo i buduje aplikację. Każde kolejne — po prostu startuje serwer (kilka sekund), otwiera przeglądarkę i **autopilot pozyskiwania tyka sam w tle**. Skrypt jest bezpieczny do wielokrotnego uruchamiania — po pierwszej inicjalizacji nigdy nie kasuje danych.
+
+Login demo: `owner@northstar.studio` / `demo1234`. Zamknięcie okna terminala zatrzymuje program.
+
+---
+
 ## Szybki start (lokalnie)
 
 Wymagania: **Node 18+** (zalecane 20) oraz **Docker** (najprościej dla bazy).
