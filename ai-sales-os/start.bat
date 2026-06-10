@@ -22,7 +22,7 @@ if not exist node_modules (
 )
 
 rem --- Database: reuse Postgres on :5432 if running, else start Docker ------
-powershell -NoProfile -Command "exit ((Test-NetConnection -ComputerName 127.0.0.1 -Port 5432 -WarningAction SilentlyContinue).TcpTestSucceeded -eq $true ? 0 : 1)" >nul 2>nul
+powershell -NoProfile -Command "if((Test-NetConnection -ComputerName 127.0.0.1 -Port 5432 -WarningAction SilentlyContinue).TcpTestSucceeded){exit 0}else{exit 1}" >nul 2>nul
 if not errorlevel 1 (
   echo [sales-os] PostgreSQL already running on :5432 - using it.
 ) else (
@@ -36,7 +36,7 @@ if not errorlevel 1 (
   docker compose up -d db || (echo [sales-os] Could not start the database. Is Docker Desktop running? & pause & exit /b 1)
   echo [sales-os] Waiting for the database...
   for /l %%i in (1,1,30) do (
-    powershell -NoProfile -Command "exit ((Test-NetConnection -ComputerName 127.0.0.1 -Port 5432 -WarningAction SilentlyContinue).TcpTestSucceeded -eq $true ? 0 : 1)" >nul 2>nul
+    powershell -NoProfile -Command "if((Test-NetConnection -ComputerName 127.0.0.1 -Port 5432 -WarningAction SilentlyContinue).TcpTestSucceeded){exit 0}else{exit 1}" >nul 2>nul
     if not errorlevel 1 goto dbready
     timeout /t 1 /nobreak >nul
   )
