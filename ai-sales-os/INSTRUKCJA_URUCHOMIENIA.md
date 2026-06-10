@@ -41,9 +41,12 @@ własne konto przez `/register` (czysty, oddzielny workspace).
 
 - **Windows:** w Edge/Chrome kliknij ikonę **„Zainstaluj aplikację"** w pasku adresu —
   dostaniesz osobne okno i ikonę w Menu Start.
-- **Telefon (ta sama sieć Wi-Fi):** wejdź na `http://IP-KOMPUTERA:3000`
-  (IP sprawdzisz: `ipconfig` → IPv4). Pełna instalacja PWA wymaga HTTPS —
-  najprościej przez darmowy tunel: `npx cloudflared tunnel --url http://localhost:3000`
+- **Telefon (ta sama sieć Wi-Fi):** `start.bat` po uruchomieniu **sam wypisuje
+  gotowy adres**, np. `http://192.168.1.20:3000` — wpisz go w przeglądarce telefonu.
+  Gdy Windows zapyta o zaporę („Czy zezwolić aplikacji Node.js…"), kliknij
+  **„Zezwól na dostęp"** — bez tego telefon nie połączy się z komputerem.
+  Pełna instalacja PWA (ikona na ekranie głównym) wymaga HTTPS — najprościej
+  przez darmowy tunel: `npx cloudflared tunnel --url http://localhost:3000`
   i otwórz otrzymany adres `https://…trycloudflare.com` na telefonie →
   „Dodaj do ekranu głównego".
 
@@ -73,6 +76,8 @@ darmowy klucz (Google Maps, CEIDG, Resend…) i gdzie go wkleić (plik `.env`).
 | „Docker is missing / database did not start" | Uruchom Docker Desktop (wieloryb w zasobniku) i spróbuj znowu |
 | Strona nie otwiera się | Poczekaj ~30 s przy pierwszym starcie; sprawdź czarne okno — tam widać postęp |
 | Port 3000 zajęty | Zamknij inne aplikacje deweloperskie albo zrestartuj komputer |
+| Żółte `npm warn tar TAR_ENTRY_ERROR UNKNOWN` przy instalacji | To ostrzeżenia (zwykle antywirus/OneDrive blokuje pliki na chwilę) — poczekaj, npm ponawia próby. Jeśli program POTEM nie startuje: przenieś folder z Pulpitu do `C:\ai-sales-os`, usuń w nim podfolder `node_modules` i uruchom `start.bat` jeszcze raz |
+| Telefon nie łączy się z `http://IP:3000` | 1) telefon i komputer muszą być w tej samej sieci Wi-Fi, 2) przy starcie kliknij „Zezwól na dostęp" w oknie zapory Windows (albo: Ustawienia → Zapora → Zezwalaj aplikacji → Node.js → sieci prywatne) |
 
 ## Co dalej (żeby działało 24/7 i z telefonu wszędzie)
 

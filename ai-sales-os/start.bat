@@ -71,8 +71,11 @@ if not exist .next\BUILD_ID (
 
 echo.
 echo [sales-os] Starting AI Sales OS on http://localhost:3000
+echo [sales-os] On your PHONE (same Wi-Fi) open one of these addresses:
+for /f "delims=" %%i in ('node -e "Object.values(require(`os`).networkInterfaces()).flat().filter(function(i){return i&&i.family===`IPv4`&&!i.internal}).forEach(function(i){console.log(`http://`+i.address+`:3000`)})"') do echo            %%i
+echo [sales-os] If Windows Firewall asks for permission, click "Allow access".
 echo [sales-os] Login: owner@northstar.studio / demo1234  -  close this window to stop.
 echo [sales-os] Tip: in Edge/Chrome click "Install app" to get it as a desktop app.
 start "" "http://localhost:3000"
-call npm run start
+call npm run start -- -H 0.0.0.0
 pause

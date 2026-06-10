@@ -61,10 +61,14 @@ if [ ! -f .next/BUILD_ID ] || [ -n "$(find src prisma package.json -newer .next/
   npm run build
 fi
 
-# --- 7. Launch ---------------------------------------------------------------
+# --- 7. Launch (listens on the whole local network) ---------------------------
 say "Starting AI Sales OS on http://localhost:3000 (autopilot ticks automatically)."
+LAN_IPS=$(node -e "Object.values(require('os').networkInterfaces()).flat().filter(i=>i&&i.family==='IPv4'&&!i.internal).forEach(i=>console.log(i.address))" 2>/dev/null)
+for ip in $LAN_IPS; do
+  say "On your phone / other devices (same Wi-Fi): http://$ip:3000"
+done
 say "Login: owner@northstar.studio / demo1234 · Stop with Ctrl+C."
 ( sleep 3
   if command -v open >/dev/null 2>&1; then open "http://localhost:3000"; \
   elif command -v xdg-open >/dev/null 2>&1; then xdg-open "http://localhost:3000"; fi ) &
-exec npm run start
+exec npm run start -- -H 0.0.0.0
