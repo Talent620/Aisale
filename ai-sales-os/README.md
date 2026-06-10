@@ -195,6 +195,19 @@ Historia rozmów (`CallLog`) jest też widoczna na karcie leada; aktualny status
 
 ---
 
+## Karta bojowa leada (playbook sprzedażowy)
+
+Po wejściu w leada, na samej górze, widzisz **Battle card** — wszystko czego potrzebujesz, żeby go przejąć:
+
+- **Where to hit** — najmocniejszy punkt uderzenia wyliczony z danych: *brak strony („niewidoczny w Google")*, *strona ładuje się X s*, *„Not secure" w przeglądarce*, *nie działa na telefonie*, *świeżo zarejestrowana firma*. Najmocniejszy kąt oznaczony badge „strongest" + **gotowy opener rozmowy** odwołujący się do konkretów.
+- **Where we stand** — przejrzysta checklista: zadzwoniono (ile razy, ostatni wynik), e-mail wysłany, audyt zrobiony, spotkanie umówione, oferta wysłana + najlepsze okna na telefon (wt–czw 9–11 / 15–17).
+- **How to win them** — 2–3 kolejne ruchy dopasowane do statusu (inne po „nie odebrał", inne po „zainteresowany", inne po „spotkanie umówione"), oparte o badania cold outreach: darmowy mini-audyt jako stopa w drzwiach, multi-channel (+37% odpowiedzi), wycena w 24 h od „zainteresowany", 3 opcje cenowe, deadline przy zamykaniu. Przy 3–5 kontaktach przypomina: **93% konwersji następuje od 6. kontaktu**.
+- **Objection cheat sheet** — gotowe odpowiedzi na klasyki: „mam klientów z polecenia", „za drogo", „bratanek mi zrobi", „mam Facebooka", „nie mam czasu".
+
+Silnik jest deterministyczny (`src/lib/playbook.ts`) — działa bez AI i bez kluczy, zawsze z faktów o leadzie.
+
+---
+
 ## Wysyłka e-maili (naprawdę)
 
 - **Zatwierdzenie draftu w `/approvals` wysyła e-mail** do leada (jeśli ma adres): Resend (`RESEND_API_KEY`) lub Mailgun (`MAILGUN_API_KEY` + `MAILGUN_DOMAIN`), nadawca z `EMAIL_FROM`. Bez kluczy wysyłka jest **symulowana** i wyraźnie oznaczona — flow pozostaje testowalny.

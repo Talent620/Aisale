@@ -28,6 +28,8 @@ import { OutcomeBadge, SourceBadge, TaskStatusBadge } from "@/components/status-
 import { LeadActions } from "@/components/leads/lead-actions";
 import { AuditCard } from "@/components/leads/audit-card";
 import { CallPanel } from "@/components/leads/call-panel";
+import { PlaybookCard } from "@/components/leads/playbook-card";
+import { buildPlaybook } from "@/lib/playbook";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +43,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
   const a = await getAuth();
   if ("res" in a) redirect("/login");
 
-  const [lead, stages] = await Promise.all([
+  const [lead, stages, emailsSent] = await Promise.all([
     prisma.lead.findFirst({
       where: { id: params.id, companyId: a.ctx.companyId, deletedAt: null },
       include: {
@@ -64,9 +66,20 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
       orderBy: { order: "asc" },
       select: { id: true, name: true, color: true },
     }),
+    prisma.leadActivity.count({
+      where: { leadId: params.id, companyId: a.ctx.companyId, type: "EMAIL" },
+    }),
   ]);
 
   if (!lead) notFound();
+
+  const playbook = buildPlaybook({
+    lead,
+    stageName: lead.stage?.name ?? null,
+    audit: lead.audits[0] ?? null,
+    emailsSent,
+    lastCallNote: lead.callLogs[0]?.note ?? null,
+  });
 
   const nba = nextBestAction(lead);
   const breakdown = (lead.scores[0]?.breakdown ?? {}) as Record<string, number>;
@@ -128,6 +141,8 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           }}
         />
       </div>
+
+      <PlaybookCard playbook={playbook} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left: details + score */}
