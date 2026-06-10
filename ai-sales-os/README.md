@@ -208,6 +208,20 @@ Historia rozmów (`CallLog`) jest też widoczna na karcie leada; aktualny status
 
 ---
 
+## Import CSV, landing, zgody RODO, CPL, publiczne API, kalendarz
+
+- **Import CSV** — przycisk „Import CSV" na liście leadów; rozpoznaje polskie i angielskie nagłówki (telefon, firma, miasto, branża…), średniki z Excela, pola w cudzysłowach. Dedup + scoring jak przy każdym innym źródle. Endpoint: `POST /api/leads/import`.
+- **Landing page** — publiczna strona `/l/<slug-firmy>` z formularzem i wymaganą zgodą RODO; cel dla reklam z Social Studio. Lead trafia prosto do CRM ze źródłem `landing:<slug>`.
+- **Zgody marketingowe (RODO)** — `marketingConsent` + automatyczny zapis **czasu i źródła zgody** (landing/CSV/API/ręcznie); widoczne na karcie leada. Eksport pełnych danych leada: przycisk „Export all data (GDPR JSON)".
+- **CPL i skuteczność kanałów** — Analytics → „Channel performance": leady, konwersja, wydatek, **CPL** i koszt na wygraną per kanał (ostatnie 90 dni) + edytor miesięcznych wydatków.
+- **Publiczne API** — Settings → „API access": klucze `sk_live_…` (hash w bazie, plaintext raz). REST: `GET/POST /api/v1/leads` z `Authorization: Bearer <klucz>` — gotowe pod Zapier/Make/skrypty.
+- **Kalendarz (ICS)** — subskrybuj `GET /api/calendar/ics?token=…` w Google Calendar/Outlook: zadania z terminami + zaplanowane telefony. URL w Settings.
+- **Round-robin** — nowe leady trafiają do osoby z najmniejszą liczbą otwartych leadów; **decydenci** dostają tag `decision-maker`.
+
+Pełny raport audytu: `AUDIT_LEAD_GENERATION.md` · co wdrożono: `IMPLEMENTATION_SUMMARY.md` · co wymaga Twoich kluczy/decyzji: `TODO_MANUAL_ACTIONS.md`.
+
+---
+
 ## Karta bojowa leada (playbook sprzedażowy)
 
 Po wejściu w leada, na samej górze, widzisz **Battle card** — wszystko czego potrzebujesz, żeby go przejąć:
@@ -289,6 +303,14 @@ src/
                        # metrics, walidacje, warstwa AI (adapter/mock/prompts)
   jobs/                # joby w tle
   store/               # Zustand (stan UI)
+```
+
+---
+
+## Testy
+
+```bash
+npm test   # vitest — testy jednostkowe czystych modułów (CSV, playbook, scoring)
 ```
 
 ---
