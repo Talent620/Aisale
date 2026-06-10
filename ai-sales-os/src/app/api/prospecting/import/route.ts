@@ -32,8 +32,8 @@ export async function POST(req: Request) {
       await notify({
         companyId: a.ctx.companyId,
         type: "SYSTEM",
-        title: `Lead Finder imported ${result.created} lead${result.created === 1 ? "" : "s"}`,
-        body: `${result.deduped ? `${result.deduped} duplicate(s) skipped · ` : ""}${result.audited ? `${result.audited} website(s) audited` : ""}`,
+        title: `Szukaj firm: zaimportowano ${result.created}`,
+        body: `${result.deduped ? `pominięte duplikaty: ${result.deduped} · ` : ""}${result.audited ? `zaudytowane strony: ${result.audited}` : ""}`,
         link: "/leads",
       });
     }

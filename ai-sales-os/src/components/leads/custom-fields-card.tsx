@@ -30,12 +30,12 @@ export function CustomFieldsCard({
         body: JSON.stringify({ customFields: next }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Custom fields saved");
+      toast.success("Pola zapisane");
       setKey("");
       setValue("");
       router.refresh();
     } catch {
-      toast.error("Could not save custom fields");
+      toast.error("Nie udało się zapisać pól");
     } finally {
       setBusy(false);
     }
@@ -47,14 +47,13 @@ export function CustomFieldsCard({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <ListPlus className="h-4 w-4" /> Custom fields
+          <ListPlus className="h-4 w-4" /> Pola niestandardowe
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {entries.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No custom fields yet — add anything your process needs (NIP, contract no., source
-            campaign…).
+            Brak pól — dodaj cokolwiek potrzebuje Twój proces (NIP, nr umowy, kampania źródłowa…).
           </p>
         ) : (
           <div className="space-y-2">
@@ -75,7 +74,7 @@ export function CustomFieldsCard({
                     delete next[k];
                     save(next);
                   }}
-                  aria-label={`Remove ${k}`}
+                  aria-label={`Usuń ${k}`}
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -84,14 +83,14 @@ export function CustomFieldsCard({
           </div>
         )}
         <div className="flex gap-2">
-          <Input placeholder="Field" value={key} onChange={(e) => setKey(e.target.value)} className="w-32" />
-          <Input placeholder="Value" value={value} onChange={(e) => setValue(e.target.value)} />
+          <Input placeholder="Pole" value={key} onChange={(e) => setKey(e.target.value)} className="w-32" />
+          <Input placeholder="Wartość" value={value} onChange={(e) => setValue(e.target.value)} />
           <Button
             variant="outline"
             size="icon"
             disabled={busy || !key.trim() || !value.trim()}
             onClick={() => save({ ...fields, [key.trim()]: value.trim() })}
-            aria-label="Add field"
+            aria-label="Dodaj pole"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
           </Button>

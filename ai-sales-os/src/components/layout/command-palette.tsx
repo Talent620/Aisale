@@ -151,7 +151,7 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKey}
-            placeholder="Search leads by name, company, phone… or jump to a page"
+            placeholder="Szukaj leada po nazwie, firmie, telefonie… albo skocz do strony"
             className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground sm:block">
@@ -161,7 +161,7 @@ export function CommandPalette() {
         <div className="max-h-80 overflow-y-auto p-2">
           {items.length === 0 ? (
             <p className="px-3 py-8 text-center text-sm text-muted-foreground">
-              {query.trim().length >= 2 && !loading ? "No matches." : "Type to search…"}
+              {query.trim().length >= 2 && !loading ? "Brak wyników." : "Zacznij pisać…"}
             </p>
           ) : (
             items.map((item, i) => (
@@ -192,7 +192,7 @@ export function CommandPalette() {
                     <ScoreBadge score={item.lead.score} grade={item.lead.scoreGrade} />
                   </span>
                 ) : (
-                  <span className="shrink-0 text-xs text-muted-foreground">Page</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">Strona</span>
                 )}
               </button>
             ))
@@ -212,10 +212,10 @@ export function SearchTrigger() {
         window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))
       }
       className="hidden h-9 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted sm:flex sm:w-56 lg:w-72"
-      aria-label="Search"
+      aria-label="Szukaj"
     >
       <Search className="h-4 w-4" />
-      <span className="flex-1 text-left">Search…</span>
+      <span className="flex-1 text-left">Szukaj…</span>
       <kbd className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px]">
         Ctrl K
       </kbd>

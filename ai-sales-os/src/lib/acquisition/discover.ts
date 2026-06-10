@@ -80,8 +80,8 @@ export async function discoverLeads(args: {
     await notify({
       companyId: args.companyId,
       type: "SYSTEM",
-      title: `Discovery added ${created} new lead${created === 1 ? "" : "s"}`,
-      body: `${live ? providerNames.join(" + ") : "Sample"} source${audience ? ` · ${audience.name}` : ""}${deduped ? ` · ${deduped} duplicate(s) skipped` : ""}`,
+      title: `Wyszukiwanie dodało nowe leady: ${created}`,
+      body: `Źródło: ${live ? providerNames.join(" + ") : "przykładowe"}${audience ? ` · ${audience.name}` : ""}${deduped ? ` · pominięte duplikaty: ${deduped}` : ""}`,
       link: "/leads",
     });
   }

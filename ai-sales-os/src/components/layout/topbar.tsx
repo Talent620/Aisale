@@ -34,14 +34,14 @@ export function Topbar({
         size="icon"
         className="lg:hidden"
         onClick={() => setSidebarOpen(true)}
-        aria-label="Open menu"
+        aria-label="Otwórz menu"
       >
         <Menu className="h-5 w-5" />
       </Button>
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">{companyName}</p>
-        <p className="truncate text-xs text-muted-foreground">Sales &amp; acquisition workspace</p>
+        <p className="truncate text-xs text-muted-foreground">System sprzedaży i pozyskiwania</p>
       </div>
 
       <SearchTrigger />
@@ -65,26 +65,26 @@ export function Topbar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>
-            <p className="text-sm font-medium">{user.name ?? "Account"}</p>
+            <p className="text-sm font-medium">{user.name ?? "Konto"}</p>
             <p className="text-xs font-normal text-muted-foreground">{user.email}</p>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href="/settings">
               <Settings className="h-4 w-4" />
-              Settings
+              Ustawienia
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/copilot">
               <Bot className="h-4 w-4" />
-              AI Copilot
+              Copilot AI
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
             <LogOut className="h-4 w-4" />
-            Sign out
+            Wyloguj
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -308,8 +308,8 @@ export async function publishSocialPost(args: {
     companyId: args.companyId,
     type: "SYSTEM",
     title: outcome.ok
-      ? `Post published to ${post.channel}${outcome.simulated ? " (simulated)" : ""}`
-      : `Publishing to ${post.channel} failed`,
+      ? `Post opublikowany: ${post.channel}${outcome.simulated ? " (symulacja)" : ""}`
+      : `Publikacja na ${post.channel} nie powiodła się`,
     body: outcome.ok ? post.title ?? post.body.slice(0, 80) : outcome.error,
     link: "/social",
   });

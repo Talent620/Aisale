@@ -67,8 +67,8 @@ export async function POST(req: Request) {
       await notify({
         companyId: a.ctx.companyId,
         type: "SYSTEM",
-        title: `CSV import: ${created} new lead${created === 1 ? "" : "s"}`,
-        body: `${deduped ? `${deduped} duplicate(s) merged · ` : ""}columns: ${recognised.join(", ")}`,
+        title: `Import CSV: ${created} nowych leadów`,
+        body: `${deduped ? `scalone duplikaty: ${deduped} · ` : ""}kolumny: ${recognised.join(", ")}`,
         link: "/leads",
       });
     }

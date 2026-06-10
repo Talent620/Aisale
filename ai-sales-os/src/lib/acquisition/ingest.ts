@@ -41,7 +41,7 @@ function cleanName(input: NormalizedLeadInput): string {
   if (n) return n;
   if (input.email) return input.email.split("@")[0];
   if (input.companyName) return input.companyName.trim();
-  return "New lead";
+  return "Nowy lead";
 }
 
 /**
@@ -95,7 +95,7 @@ export async function ingestLead(args: {
         companyId,
         leadId: existing.id,
         type: "SYSTEM",
-        title: `Re-engaged via ${sourceLabel}`,
+        title: `Ponowny kontakt przez: ${sourceLabel}`,
         body: input.message ?? null,
       }),
     ]);
@@ -144,7 +144,7 @@ export async function ingestLead(args: {
       ownerId: owner,
       tags: args.tags ?? [],
       nextActionAt: new Date(),
-      nextActionNote: "Respond to new lead",
+      nextActionNote: "Odpowiedz nowemu leadowi",
       marketingConsent: args.marketingConsent ?? false,
       consentAt: args.marketingConsent ? new Date() : null,
       consentSource: args.marketingConsent ? args.consentSource ?? sourceLabel : null,
@@ -157,7 +157,7 @@ export async function ingestLead(args: {
     companyId,
     leadId: created.id,
     type: "SYSTEM",
-    title: `Captured via ${sourceLabel}`,
+    title: `Pozyskany przez: ${sourceLabel}`,
     body: input.message ?? null,
     meta: { source, sourceDetail: args.sourceDetail ?? input.sourceDetail ?? null },
   });
@@ -167,8 +167,8 @@ export async function ingestLead(args: {
     await notify({
       companyId,
       type: hot ? "HOT_LEAD" : "SYSTEM",
-      title: hot ? `New hot lead: ${name}` : `New lead: ${name}`,
-      body: `Captured via ${sourceLabel}${input.companyName ? ` · ${input.companyName}` : ""} · score ${score.score} (${score.grade})`,
+      title: hot ? `Nowy gorący lead: ${name}` : `Nowy lead: ${name}`,
+      body: `Pozyskany przez: ${sourceLabel}${input.companyName ? ` · ${input.companyName}` : ""} · scoring ${score.score} (${score.grade})`,
       link: `/leads/${created.id}`,
     });
   }
@@ -223,7 +223,7 @@ export async function ingestLead(args: {
             companyId,
             type: isOutbound ? "AI_MESSAGE" : "AI_FOLLOWUP",
             status: "PENDING",
-            title: isOutbound ? `First-touch outreach · ${name}` : `First-touch reply · ${name}`,
+            title: isOutbound ? `Pierwszy kontakt · ${name}` : `Pierwsza odpowiedź · ${name}`,
             summary: result.text.slice(0, 140),
             payload: {
               kind,
@@ -240,7 +240,7 @@ export async function ingestLead(args: {
           companyId,
           leadId: created.id,
           type: "AI_DRAFT",
-          title: "AI drafted a first-touch reply",
+          title: "AI przygotowało szkic pierwszej wiadomości",
         });
 
         await logAiDecision({

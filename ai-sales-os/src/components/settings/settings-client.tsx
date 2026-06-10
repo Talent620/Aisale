@@ -54,6 +54,12 @@ const STATUS_VARIANT: Record<string, "success" | "secondary" | "destructive"> = 
   ERROR: "destructive",
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  CONNECTED: "Połączono",
+  DISCONNECTED: "Rozłączono",
+  ERROR: "Błąd",
+};
+
 export function SettingsClient({ company }: { company: CompanyData }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -86,10 +92,10 @@ export function SettingsClient({ company }: { company: CompanyData }) {
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Settings saved");
+      toast.success("Ustawienia zapisane");
       router.refresh();
     } catch {
-      toast.error("Could not save settings");
+      toast.error("Nie udało się zapisać ustawień");
     } finally {
       setSaving(false);
     }
@@ -99,15 +105,15 @@ export function SettingsClient({ company }: { company: CompanyData }) {
     <div className="max-w-3xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Company profile</CardTitle>
+          <CardTitle className="text-base">Profil firmy</CardTitle>
           <CardDescription>
-            Used across the app and as context for AI generation.
+            Wykorzystywany w całej aplikacji oraz jako kontekst do generowania treści AI.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="s-name">Company name</Label>
+              <Label htmlFor="s-name">Nazwa firmy</Label>
               <Input
                 id="s-name"
                 value={form.name}
@@ -115,16 +121,16 @@ export function SettingsClient({ company }: { company: CompanyData }) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="s-industry">Industry</Label>
+              <Label htmlFor="s-industry">Branża</Label>
               <Input
                 id="s-industry"
                 value={form.industry}
                 onChange={(e) => set("industry", e.target.value)}
-                placeholder="e.g. Trade fairs & exhibitions"
+                placeholder="np. Targi i wystawy"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="s-website">Website</Label>
+              <Label htmlFor="s-website">Strona WWW</Label>
               <Input
                 id="s-website"
                 value={form.website}
@@ -134,7 +140,7 @@ export function SettingsClient({ company }: { company: CompanyData }) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="s-currency">Currency</Label>
+                <Label htmlFor="s-currency">Waluta</Label>
                 <select
                   id="s-currency"
                   value={form.currency}
@@ -149,7 +155,7 @@ export function SettingsClient({ company }: { company: CompanyData }) {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="s-tz">Timezone</Label>
+                <Label htmlFor="s-tz">Strefa czasowa</Label>
                 <select
                   id="s-tz"
                   value={form.timezone}
@@ -166,16 +172,16 @@ export function SettingsClient({ company }: { company: CompanyData }) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-context">AI context</Label>
+            <Label htmlFor="s-context">Kontekst AI</Label>
             <Textarea
               id="s-context"
               value={form.aiContext}
               onChange={(e) => set("aiContext", e.target.value)}
               rows={4}
-              placeholder="Describe what you sell, your tone of voice, and your ideal customer. The AI uses this in every draft."
+              placeholder="Opisz, co sprzedajesz, swój ton komunikacji i idealnego klienta. AI korzysta z tego w każdym szkicu."
             />
             <p className="text-xs text-muted-foreground">
-              This is injected into every AI prompt to keep output on-brand.
+              Ten opis jest dołączany do każdego promptu AI, aby treści były spójne z marką.
             </p>
           </div>
           <div className="flex justify-end">
@@ -185,7 +191,7 @@ export function SettingsClient({ company }: { company: CompanyData }) {
               ) : (
                 <Save className="mr-1.5 h-4 w-4" />
               )}
-              Save changes
+              Zapisz zmiany
             </Button>
           </div>
         </CardContent>
@@ -195,18 +201,18 @@ export function SettingsClient({ company }: { company: CompanyData }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Plug className="h-4 w-4 text-muted-foreground" />
-            Integrations
+            Integracje
           </CardTitle>
           <CardDescription>
-            Connect an AI provider for live generation. Without one, the app runs on
-            the built-in mock engine.
+            Podłącz dostawcę AI, aby generować treści na żywo. Bez tego aplikacja działa
+            na wbudowanym silniku testowym (mock).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {company.integrations.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No integrations configured. Set AI_PROVIDER and AI_API_KEY in your
-              environment to enable live AI.
+              Brak skonfigurowanych integracji. Ustaw AI_PROVIDER i AI_API_KEY w
+              środowisku, aby włączyć AI na żywo.
             </p>
           ) : (
             company.integrations.map((i) => (
@@ -218,7 +224,7 @@ export function SettingsClient({ company }: { company: CompanyData }) {
                   <p className="text-sm font-medium">{label(i.provider)}</p>
                   <p className="text-xs text-muted-foreground">{label(i.type)}</p>
                 </div>
-                <Badge variant={STATUS_VARIANT[i.status]}>{label(i.status)}</Badge>
+                <Badge variant={STATUS_VARIANT[i.status]}>{STATUS_LABEL[i.status] ?? label(i.status)}</Badge>
               </div>
             ))
           )}
@@ -229,32 +235,32 @@ export function SettingsClient({ company }: { company: CompanyData }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-            Privacy &amp; data (GDPR / RODO)
+            Prywatność i dane (GDPR / RODO)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            This workspace holds{" "}
+            Ten workspace zawiera{" "}
             <span className="font-medium text-foreground">
-              {company._count.leads} leads
+              {company._count.leads} leadów
             </span>{" "}
-            and{" "}
+            oraz{" "}
             <span className="font-medium text-foreground">
-              {company._count.users} users
+              {company._count.users} użytkowników
             </span>
             .
           </p>
           <Separator />
           <ul className="list-inside list-disc space-y-1.5">
-            <li>Leads are soft-deleted, keeping an auditable trail before purge.</li>
-            <li>Every AI action is recorded in an immutable decision log.</li>
-            <li>No message is ever sent without explicit human approval.</li>
-            <li>Lead data is sanitised before being passed to any AI provider.</li>
+            <li>Leady są usuwane miękko, z zachowaniem audytowalnego śladu przed trwałym usunięciem.</li>
+            <li>Każde działanie AI jest zapisywane w niezmienialnym dzienniku decyzji.</li>
+            <li>Żadna wiadomość nie zostanie wysłana bez wyraźnej akceptacji człowieka.</li>
+            <li>Dane leadów są oczyszczane przed przekazaniem do jakiegokolwiek dostawcy AI.</li>
           </ul>
           <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-xs">
             <Database className="h-4 w-4 shrink-0" />
-            Data export and right-to-erasure endpoints are part of the roadmap — see
-            the README.
+            Eksport danych i endpointy prawa do usunięcia są w planach rozwoju — zobacz
+            README.
           </div>
         </CardContent>
       </Card>

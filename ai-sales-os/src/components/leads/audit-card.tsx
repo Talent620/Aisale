@@ -44,12 +44,12 @@ export function AuditCard({
       const res = await fetch(`/api/leads/${leadId}/audit`, { method: "POST" });
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
-        throw new Error(data.error ?? "Audit failed");
+        throw new Error(data.error ?? "Audyt nie powiódł się");
       }
-      toast.success("Website audited");
+      toast.success("Strona zaudytowana");
       router.refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Audit failed");
+      toast.error(e instanceof Error ? e.message : "Audyt nie powiódł się");
     } finally {
       setRunning(false);
     }
@@ -59,12 +59,12 @@ export function AuditCard({
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle className="flex items-center gap-2">
-          <Gauge className="h-4 w-4" /> Website audit
+          <Gauge className="h-4 w-4" /> Audyt strony WWW
         </CardTitle>
         {website ? (
           <Button variant="outline" size="sm" onClick={runAudit} disabled={running}>
             {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            {audit ? "Re-run" : "Run audit"}
+            {audit ? "Powtórz" : "Audytuj"}
           </Button>
         ) : null}
       </CardHeader>
@@ -73,13 +73,13 @@ export function AuditCard({
           <div className="flex items-start gap-2 rounded-md border border-success/20 bg-success/5 p-3">
             <GlobeLock className="mt-0.5 h-4 w-4 shrink-0 text-success" />
             <p className="text-sm">
-              <span className="font-medium text-success">No website{hasWebsite === false ? " (verified)" : " on file"}.</span>{" "}
-              This is your strongest pitch: they're invisible to customers searching online.
+              <span className="font-medium text-success">Brak strony{hasWebsite === false ? " (zweryfikowano)" : " w danych"}.</span>{" "}
+              To Twój najmocniejszy argument: są niewidoczni dla szukających klientów.
             </p>
           </div>
         ) : !audit ? (
           <p className="text-sm text-muted-foreground">
-            Not audited yet. Run the audit to get concrete talking points (speed, HTTPS, mobile, SEO).
+            Jeszcze nie audytowano. Odpal audyt, a dostaniesz konkrety do rozmowy (szybkość, HTTPS, mobile, SEO).
           </p>
         ) : (
           <>
@@ -91,16 +91,16 @@ export function AuditCard({
               <div className="flex flex-wrap gap-1.5">
                 {!audit.https ? (
                   <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
-                    <ShieldAlert className="mr-1 h-3 w-3" /> No HTTPS
+                    <ShieldAlert className="mr-1 h-3 w-3" /> Brak HTTPS
                   </Badge>
                 ) : null}
                 {audit.mobileFriendly === false ? (
                   <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
-                    <Smartphone className="mr-1 h-3 w-3" /> Not mobile-friendly
+                    <Smartphone className="mr-1 h-3 w-3" /> Nie działa na mobile
                   </Badge>
                 ) : null}
                 {audit.loadTimeMs != null ? (
-                  <Badge variant="secondary">{(audit.loadTimeMs / 1000).toFixed(1)}s load</Badge>
+                  <Badge variant="secondary">{(audit.loadTimeMs / 1000).toFixed(1)} s ładowania</Badge>
                 ) : null}
               </div>
             </div>
@@ -116,7 +116,7 @@ export function AuditCard({
               </ul>
             ) : null}
             <p className="text-xs text-muted-foreground">
-              {audit.provider === "pagespeed" ? "Google PageSpeed" : "Heuristic probe"} ·{" "}
+              {audit.provider === "pagespeed" ? "Google PageSpeed" : "Sonda heurystyczna"} ·{" "}
               {formatDistanceToNow(new Date(audit.createdAt), { addSuffix: true })}
             </p>
           </>

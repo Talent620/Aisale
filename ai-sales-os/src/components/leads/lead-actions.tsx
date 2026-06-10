@@ -84,10 +84,10 @@ export function LeadActions({
         body: JSON.stringify({ stageId }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Stage updated");
+      toast.success("Etap zaktualizowany");
       router.refresh();
     } catch {
-      toast.error("Could not update stage");
+      toast.error("Nie udało się zmienić etapu");
       setStage(currentStageId ?? "");
     }
   }
@@ -98,10 +98,10 @@ export function LeadActions({
       const res = await fetch(`/api/leads/${leadId}/score`, { method: "POST" });
       if (!res.ok) throw new Error();
       const data = await res.json();
-      toast.success(`Rescored: ${data.score} (${data.grade})`);
+      toast.success(`Nowy scoring: ${data.score} (${data.grade})`);
       router.refresh();
     } catch {
-      toast.error("Could not rescore");
+      toast.error("Nie udało się przeliczyć scoringu");
     } finally {
       setRescoring(false);
     }
@@ -110,7 +110,7 @@ export function LeadActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Select value={stage} onValueChange={changeStage}>
-        <SelectTrigger className="w-44"><SelectValue placeholder="Set stage" /></SelectTrigger>
+        <SelectTrigger className="w-44"><SelectValue placeholder="Ustaw etap" /></SelectTrigger>
         <SelectContent>
           {stages.map((s) => (
             <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
@@ -120,16 +120,16 @@ export function LeadActions({
 
       <Button variant="outline" size="sm" onClick={rescore} disabled={rescoring}>
         {rescoring ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-        Rescore
+        Przelicz scoring
       </Button>
       <Button variant="outline" size="sm" onClick={() => setNoteOpen(true)}>
-        <StickyNote className="h-4 w-4" /> Note
+        <StickyNote className="h-4 w-4" /> Notatka
       </Button>
       <Button variant="outline" size="sm" onClick={() => setTaskOpen(true)}>
-        <Plus className="h-4 w-4" /> Task
+        <Plus className="h-4 w-4" /> Zadanie
       </Button>
       <Button size="sm" onClick={() => setEditOpen(true)}>
-        <Pencil className="h-4 w-4" /> Edit
+        <Pencil className="h-4 w-4" /> Edytuj
       </Button>
 
       <NoteDialog leadId={leadId} open={noteOpen} setOpen={setNoteOpen} onDone={() => router.refresh()} />
@@ -154,13 +154,13 @@ function NoteDialog({ leadId, open, setOpen, onDone }: { leadId: string; open: b
         body: JSON.stringify({ body, pinned }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Note added");
+      toast.success("Notatka dodana");
       setBody("");
       setPinned(false);
       setOpen(false);
       onDone();
     } catch {
-      toast.error("Could not save note");
+      toast.error("Nie udało się zapisać notatki");
     } finally {
       setSaving(false);
     }
@@ -169,16 +169,16 @@ function NoteDialog({ leadId, open, setOpen, onDone }: { leadId: string; open: b
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>Add a note</DialogTitle></DialogHeader>
-        <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} placeholder="What happened / what to remember…" />
+        <DialogHeader><DialogTitle>Dodaj notatkę</DialogTitle></DialogHeader>
+        <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} placeholder="Co się wydarzyło / o czym pamiętać…" />
         <label className="flex items-center gap-2 text-sm text-muted-foreground">
           <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} className="h-4 w-4 rounded border-border" />
-          Pin to top
+          Przypnij na górze
         </label>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
           <Button onClick={save} disabled={saving || !body.trim()}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save note"}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Zapisz notatkę"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -209,14 +209,14 @@ function TaskDialog({ leadId, open, setOpen, onDone }: { leadId: string; open: b
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Task created");
+      toast.success("Zadanie utworzone");
       setTitle("");
       setDescription("");
       setDueDate("");
       setOpen(false);
       onDone();
     } catch {
-      toast.error("Could not create task");
+      toast.error("Nie udało się utworzyć zadania");
     } finally {
       setSaving(false);
     }
@@ -225,19 +225,19 @@ function TaskDialog({ leadId, open, setOpen, onDone }: { leadId: string; open: b
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader><DialogTitle>New task</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Nowe zadanie</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="t-title">Title</Label>
-            <Input id="t-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Follow up by email" />
+            <Label htmlFor="t-title">Tytuł</Label>
+            <Input id="t-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Follow-up e-mailem" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-desc">Description</Label>
+            <Label htmlFor="t-desc">Opis</Label>
             <Textarea id="t-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Priority</Label>
+              <Label>Priorytet</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -246,15 +246,15 @@ function TaskDialog({ leadId, open, setOpen, onDone }: { leadId: string; open: b
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="t-due">Due date</Label>
+              <Label htmlFor="t-due">Termin</Label>
               <Input id="t-due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
           <Button onClick={save} disabled={saving || title.trim().length < 2}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create task"}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Utwórz zadanie"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -322,11 +322,11 @@ function EditDialog({
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
-      toast.success("Lead updated");
+      toast.success("Lead zaktualizowany");
       setOpen(false);
       onDone();
     } catch {
-      toast.error("Could not update lead");
+      toast.error("Nie udało się zaktualizować leada");
     } finally {
       setSaving(false);
     }
@@ -335,47 +335,47 @@ function EditDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader><DialogTitle>Edit lead</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Edytuj leada</DialogTitle></DialogHeader>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 space-y-1.5">
-            <Label>Name</Label>
+            <Label>Imię i nazwisko</Label>
             <Input value={form.name} onChange={(e) => set("name", e.target.value)} />
           </div>
-          <Field label="Company"><Input value={form.companyName} onChange={(e) => set("companyName", e.target.value)} /></Field>
-          <Field label="Position"><Input value={form.position} onChange={(e) => set("position", e.target.value)} /></Field>
-          <Field label="Email"><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></Field>
-          <Field label="Phone"><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
-          <Field label="Industry"><Input value={form.industry} onChange={(e) => set("industry", e.target.value)} /></Field>
+          <Field label="Firma"><Input value={form.companyName} onChange={(e) => set("companyName", e.target.value)} /></Field>
+          <Field label="Stanowisko"><Input value={form.position} onChange={(e) => set("position", e.target.value)} /></Field>
+          <Field label="E-mail"><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></Field>
+          <Field label="Telefon"><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
+          <Field label="Branża"><Input value={form.industry} onChange={(e) => set("industry", e.target.value)} /></Field>
           <Field label="Region"><Input value={form.region} onChange={(e) => set("region", e.target.value)} /></Field>
-          <Field label="Website" full><Input value={form.website} onChange={(e) => set("website", e.target.value)} /></Field>
-          <Field label="Source">
+          <Field label="Strona WWW" full><Input value={form.website} onChange={(e) => set("website", e.target.value)} /></Field>
+          <Field label="Źródło">
             <Select value={form.source} onValueChange={(v) => set("source", v as LeadSource)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{SOURCES.map((s) => <SelectItem key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <Field label="Priority">
+          <Field label="Priorytet">
             <Select value={form.priority} onValueChange={(v) => set("priority", v as Priority)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{PRIORITIES.map((p) => <SelectItem key={p} value={p}>{PRIORITY_LABELS[p]}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <Field label="Outcome">
+          <Field label="Wynik">
             <Select value={form.outcome} onValueChange={(v) => set("outcome", v as LeadOutcome)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{OUTCOMES.map((o) => <SelectItem key={o} value={o}>{OUTCOME_LABELS[o]}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
-          <Field label="Deal value"><Input inputMode="numeric" value={form.estimatedValue} onChange={(e) => set("estimatedValue", e.target.value)} /></Field>
-          <Field label="Budget"><Input inputMode="numeric" value={form.budget} onChange={(e) => set("budget", e.target.value)} /></Field>
-          <Field label="Next action note" full>
+          <Field label="Wartość transakcji"><Input inputMode="numeric" value={form.estimatedValue} onChange={(e) => set("estimatedValue", e.target.value)} /></Field>
+          <Field label="Budżet"><Input inputMode="numeric" value={form.budget} onChange={(e) => set("budget", e.target.value)} /></Field>
+          <Field label="Notatka o następnym kroku" full>
             <Textarea value={form.nextActionNote} onChange={(e) => set("nextActionNote", e.target.value)} rows={2} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
           <Button onClick={save} disabled={saving || form.name.trim().length < 2}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save changes"}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Zapisz zmiany"}
           </Button>
         </DialogFooter>
       </DialogContent>

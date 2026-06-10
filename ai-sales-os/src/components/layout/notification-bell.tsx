@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell, Check } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { pl } from "date-fns/locale";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,7 +63,7 @@ export function NotificationBell() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+        <Button variant="ghost" size="icon" className="relative" aria-label="Powiadomienia">
           <Bell className="h-4 w-4" />
           {unread > 0 ? (
             <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-destructive-foreground">
@@ -73,21 +74,21 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between border-b border-border px-3 py-2">
-          <p className="text-sm font-semibold">Notifications</p>
+          <p className="text-sm font-semibold">Powiadomienia</p>
           {unread > 0 ? (
             <button
               onClick={markAllRead}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
             >
-              <Check className="h-3 w-3" /> Mark all read
+              <Check className="h-3 w-3" /> Oznacz wszystkie jako przeczytane
             </button>
           ) : null}
         </div>
         <div className="max-h-80 overflow-y-auto scroll-thin">
           {loading ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">Loading…</p>
+            <p className="px-3 py-6 text-center text-sm text-muted-foreground">Ładowanie…</p>
           ) : items.length === 0 ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">You're all caught up.</p>
+            <p className="px-3 py-6 text-center text-sm text-muted-foreground">Wszystko nadrobione.</p>
           ) : (
             items.slice(0, 12).map((n) => {
               const body = (
@@ -95,7 +96,7 @@ export function NotificationBell() {
                   <p className="text-sm font-medium text-foreground">{n.title}</p>
                   {n.body ? <p className="mt-0.5 text-xs text-muted-foreground">{n.body}</p> : null}
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: pl })}
                   </p>
                 </div>
               );

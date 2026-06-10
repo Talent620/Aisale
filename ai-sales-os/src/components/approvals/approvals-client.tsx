@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { pl } from "date-fns/locale";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -67,10 +68,10 @@ export function ApprovalsClient() {
         body: JSON.stringify({ status, decisionNote: notes[id]?.trim() || undefined }),
       });
       if (!res.ok) throw new Error();
-      toast.success(status === "APPROVED" ? "Approved" : "Rejected");
+      toast.success(status === "APPROVED" ? "Zatwierdzono" : "Odrzucono");
       await load();
     } catch {
-      toast.error("Could not record decision");
+      toast.error("Nie udało się zapisać decyzji");
     } finally {
       setBusy(null);
     }
@@ -79,16 +80,16 @@ export function ApprovalsClient() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Approvals"
-        description="Every AI-generated action waits here for a human decision. Nothing is sent automatically."
+        title="Akceptacje"
+        description="Każda akcja wygenerowana przez AI czeka tutaj na decyzję człowieka. Nic nie jest wysyłane automatycznie."
       />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as "PENDING" | "HISTORY")}>
         <TabsList>
           <TabsTrigger value="PENDING">
-            Pending{pending.length ? ` (${pending.length})` : ""}
+            Oczekujące{pending.length ? ` (${pending.length})` : ""}
           </TabsTrigger>
-          <TabsTrigger value="HISTORY">History</TabsTrigger>
+          <TabsTrigger value="HISTORY">Historia</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -103,11 +104,11 @@ export function ApprovalsClient() {
       ) : visible.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}
-          title={tab === "PENDING" ? "Queue is clear" : "No history yet"}
+          title={tab === "PENDING" ? "Kolejka jest pusta" : "Brak historii"}
           description={
             tab === "PENDING"
-              ? "There are no AI actions waiting for review."
-              : "Approved and rejected items will appear here."
+              ? "Żadna akcja AI nie czeka na weryfikację."
+              : "Zatwierdzone i odrzucone pozycje pojawią się tutaj."
           }
         />
       ) : (
@@ -130,20 +131,21 @@ export function ApprovalsClient() {
                           {item.lead.name}
                         </Link>
                       ) : (
-                        "No lead"
+                        "Brak leada"
                       )}
                       {" · "}
-                      requested {formatDistanceToNow(new Date(item.createdAt), {
+                      zgłoszono {formatDistanceToNow(new Date(item.createdAt), {
                         addSuffix: true,
+                        locale: pl,
                       })}
-                      {item.requestedBy?.name ? ` by ${item.requestedBy.name}` : ""}
+                      {item.requestedBy?.name ? ` przez ${item.requestedBy.name}` : ""}
                     </p>
                   </div>
                 </div>
 
                 {item.payload?.subject ? (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">Subject: </span>
+                    <span className="text-muted-foreground">Temat: </span>
                     {item.payload.subject}
                   </p>
                 ) : null}
@@ -164,7 +166,7 @@ export function ApprovalsClient() {
                       onChange={(e) =>
                         setNotes((n) => ({ ...n, [item.id]: e.target.value }))
                       }
-                      placeholder="Optional note (e.g. why you're rejecting, or an edit instruction)"
+                      placeholder="Opcjonalna notatka (np. powód odrzucenia lub wskazówka do poprawki)"
                       rows={2}
                     />
                     <div className="flex justify-end gap-2">
@@ -179,7 +181,7 @@ export function ApprovalsClient() {
                         ) : (
                           <X className="mr-1.5 h-3.5 w-3.5" />
                         )}
-                        Reject
+                        Odrzuć
                       </Button>
                       <Button
                         size="sm"
@@ -191,13 +193,13 @@ export function ApprovalsClient() {
                         ) : (
                           <Check className="mr-1.5 h-3.5 w-3.5" />
                         )}
-                        Approve
+                        Zatwierdź
                       </Button>
                     </div>
                   </div>
                 ) : item.decisionNote ? (
                   <p className="text-xs text-muted-foreground">
-                    <span className="font-medium">Note:</span> {item.decisionNote}
+                    <span className="font-medium">Notatka:</span> {item.decisionNote}
                   </p>
                 ) : null}
               </CardContent>

@@ -41,6 +41,7 @@ export function sanitize(input?: string | null, max = 1200): string {
 }
 
 export const COPILOT_SYSTEM = `You are the AI Copilot inside a sales & client-acquisition operating system used by a small service business.
+ALWAYS respond in Polish (the operator and their market are Polish), unless the user writes in another language.
 You are pragmatic, concise and commercially sharp. You help the operator decide what to do next, draft outreach, and read their funnel.
 Rules:
 - Be specific and actionable. Prefer short paragraphs and tight bullet lists.
@@ -114,6 +115,7 @@ export function buildGenerationPrompt(args: {
   userPrompt?: string;
 }): { system: string; user: string; promptKey: string } {
   const system = `You write high-converting, compliant sales copy for a small service business.
+ALWAYS write the copy in Polish — the leads and their market are Polish. Keep brand/product names as-is.
 Honor the requested format exactly. Never fabricate testimonials, numbers, or claims.
 Tone: ${sanitize(args.tone, 60) || "warm, confident, concrete"}.
 Output ONLY the requested content — no preamble, no explanation.`;

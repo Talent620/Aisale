@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { format, formatDistanceToNow } from "date-fns";
+import { pl } from "date-fns/locale";
 import {
   ArrowLeft,
   Mail,
@@ -33,6 +34,12 @@ import { PlaybookCard } from "@/components/leads/playbook-card";
 import { buildPlaybook } from "@/lib/playbook";
 
 export const dynamic = "force-dynamic";
+
+const URGENCY_PL: Record<string, string> = {
+  high: "wysoki",
+  medium: "średni",
+  low: "niski",
+};
 
 const URGENCY_CLASS: Record<string, string> = {
   high: "bg-destructive/10 text-destructive border-destructive/20",
@@ -93,7 +100,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
         <Link href="/leads">
-          <ArrowLeft className="h-4 w-4" /> Back to leads
+          <ArrowLeft className="h-4 w-4" /> Wróć do leadów
         </Link>
       </Button>
 
@@ -107,7 +114,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           </div>
           <p className="text-sm text-muted-foreground">
             {lead.position ? `${lead.position} · ` : ""}
-            {lead.companyName ?? "Independent"}
+            {lead.companyName ?? "Osoba prywatna"}
             {lead.industry ? ` · ${lead.industry}` : ""}
           </p>
           <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -150,52 +157,52 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Details</CardTitle>
+              <CardTitle>Szczegóły</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <Detail icon={Mail} label="Email" value={lead.email} href={lead.email ? `mailto:${lead.email}` : undefined} />
-              <Detail icon={Phone} label="Phone" value={lead.phone} />
-              <Detail icon={Building2} label="Company" value={lead.companyName} />
-              <Detail icon={Globe} label="Website" value={lead.website} href={lead.website ?? undefined} />
+              <Detail icon={Mail} label="E-mail" value={lead.email} href={lead.email ? `mailto:${lead.email}` : undefined} />
+              <Detail icon={Phone} label="Telefon" value={lead.phone} />
+              <Detail icon={Building2} label="Firma" value={lead.companyName} />
+              <Detail icon={Globe} label="Strona WWW" value={lead.website} href={lead.website ?? undefined} />
               <Detail icon={MapPin} label="Region" value={lead.region} />
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Deal value</span>
+                <span className="text-muted-foreground">Wartość transakcji</span>
                 <span className="font-medium tabular-nums">{lead.estimatedValue ? formatCurrency(lead.estimatedValue) : "—"}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Declared budget</span>
+                <span className="text-muted-foreground">Deklarowany budżet</span>
                 <span className="font-medium tabular-nums">{lead.budget ? formatCurrency(lead.budget) : "—"}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Stage</span>
+                <span className="text-muted-foreground">Etap</span>
                 <span className="font-medium">{lead.stage?.name ?? "—"}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Owner</span>
-                <span className="font-medium">{lead.owner?.name ?? "Unassigned"}</span>
+                <span className="text-muted-foreground">Opiekun</span>
+                <span className="font-medium">{lead.owner?.name ?? "Nieprzypisany"}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Last contacted</span>
+                <span className="text-muted-foreground">Ostatni kontakt</span>
                 <span className="font-medium">
-                  {lead.lastContactedAt ? formatDistanceToNow(new Date(lead.lastContactedAt), { addSuffix: true }) : "Never"}
+                  {lead.lastContactedAt ? formatDistanceToNow(new Date(lead.lastContactedAt), { addSuffix: true, locale: pl }) : "Nigdy"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Marketing consent</span>
+                <span className="text-muted-foreground">Zgoda marketingowa</span>
                 {lead.marketingConsent ? (
                   <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                    Yes · {lead.consentSource ?? "recorded"}
-                    {lead.consentAt ? ` · ${format(new Date(lead.consentAt), "d MMM yyyy")}` : ""}
+                    Tak · {lead.consentSource ?? "zapisana"}
+                    {lead.consentAt ? ` · ${format(new Date(lead.consentAt), "d MMM yyyy", { locale: pl })}` : ""}
                   </Badge>
                 ) : (
-                  <Badge variant="secondary">No consent on file</Badge>
+                  <Badge variant="secondary">Brak zgody</Badge>
                 )}
               </div>
               <Separator />
               <Button asChild variant="outline" size="sm" className="w-full">
                 <a href={`/api/leads/${lead.id}/export`} download>
-                  Export all data (GDPR JSON)
+                  Eksportuj wszystkie dane (RODO, JSON)
                 </a>
               </Button>
             </CardContent>
@@ -208,10 +215,10 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
           <Card>
             <CardHeader>
-              <CardTitle>Why this score</CardTitle>
+              <CardTitle>Skąd ten scoring</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">{lead.scores[0]?.reason ?? "Not scored yet."}</p>
+              <p className="text-sm text-muted-foreground">{lead.scores[0]?.reason ?? "Jeszcze nie oceniono."}</p>
               {factors.map(([name, value]) => (
                 <div key={name} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
@@ -253,10 +260,10 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           <Card className="border-primary/20 bg-primary/[0.03]">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-primary" /> Next best action
+                <Target className="h-4 w-4 text-primary" /> Następny najlepszy ruch
               </CardTitle>
               <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${URGENCY_CLASS[nba.urgency]}`}>
-                {nba.urgency} priority
+                priorytet: {URGENCY_PL[nba.urgency] ?? nba.urgency}
               </span>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -265,7 +272,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
               {nba.draftKind ? (
                 <Button asChild size="sm">
                   <Link href={`/generator?leadId=${lead.id}&kind=${nba.draftKind}`}>
-                    <Sparkles className="h-4 w-4" /> Draft with AI
+                    <Sparkles className="h-4 w-4" /> Napisz z AI
                   </Link>
                 </Button>
               ) : null}
@@ -289,19 +296,19 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <StickyNote className="h-4 w-4" /> Notes
+                  <StickyNote className="h-4 w-4" /> Notatki
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {lead.notes.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No notes yet.</p>
+                  <p className="text-sm text-muted-foreground">Brak notatek.</p>
                 ) : (
                   lead.notes.map((n) => (
                     <div key={n.id} className="rounded-md border border-border p-3">
                       <p className="whitespace-pre-wrap text-sm">{n.body}</p>
                       <p className="mt-2 text-xs text-muted-foreground">
-                        {n.author?.name ?? "Someone"} · {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
-                        {n.pinned ? " · pinned" : ""}
+                        {n.author?.name ?? "Ktoś"} · {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: pl })}
+                        {n.pinned ? " · przypięta" : ""}
                       </p>
                     </div>
                   ))
@@ -311,18 +318,18 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
             <Card>
               <CardHeader>
-                <CardTitle>Tasks</CardTitle>
+                <CardTitle>Zadania</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {lead.tasks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No tasks linked to this lead.</p>
+                  <p className="text-sm text-muted-foreground">Brak zadań dla tego leada.</p>
                 ) : (
                   lead.tasks.map((t) => (
                     <div key={t.id} className="flex items-center justify-between gap-2 rounded-md border border-border p-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{t.title}</p>
                         {t.dueDate ? (
-                          <p className="text-xs text-muted-foreground">Due {format(new Date(t.dueDate), "d MMM")}</p>
+                          <p className="text-xs text-muted-foreground">Termin {format(new Date(t.dueDate), "d MMM", { locale: pl })}</p>
                         ) : null}
                       </div>
                       <TaskStatusBadge status={t.status} />
@@ -336,12 +343,12 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <ActivityIcon className="h-4 w-4" /> Activity
+                <ActivityIcon className="h-4 w-4" /> Aktywność
               </CardTitle>
             </CardHeader>
             <CardContent>
               {lead.activities.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+                <p className="text-sm text-muted-foreground">Brak zapisanej aktywności.</p>
               ) : (
                 <ol className="relative space-y-4 border-l border-border pl-5">
                   {lead.activities.map((ev) => (
@@ -351,7 +358,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                       {ev.body ? <p className="mt-0.5 text-sm text-muted-foreground">{ev.body}</p> : null}
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {ev.user?.name ? `${ev.user.name} · ` : ""}
-                        {formatDistanceToNow(new Date(ev.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(ev.createdAt), { addSuffix: true, locale: pl })}
                       </p>
                     </li>
                   ))}

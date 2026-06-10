@@ -4,8 +4,8 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ErrorState({
-  title = "Something went wrong",
-  description = "We couldn't load this view. Please try again.",
+  title = "Coś poszło nie tak",
+  description = "Nie udało się załadować tego widoku. Spróbuj ponownie.",
   onRetry,
 }: {
   title?: string;
@@ -21,7 +21,7 @@ export function ErrorState({
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
       {onRetry ? (
         <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
-          Try again
+          Spróbuj ponownie
         </Button>
       ) : null}
     </div>

@@ -27,7 +27,7 @@ export function MobileNav() {
         <button
           onClick={() => setOpen(false)}
           className="absolute right-3 top-4 rounded-md p-1 text-muted-foreground hover:bg-secondary"
-          aria-label="Close menu"
+          aria-label="Zamknij menu"
         >
           <X className="h-4 w-4" />
         </button>

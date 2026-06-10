@@ -67,9 +67,9 @@ const SOURCES = Object.keys(LEAD_SOURCE_LABELS) as LeadSource[];
 const PRIORITIES = Object.keys(PRIORITY_LABELS) as Priority[];
 
 const formSchema = z.object({
-  name: z.string().min(2, "Contact name is required"),
+  name: z.string().min(2, "Imię i nazwisko kontaktu jest wymagane"),
   companyName: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
+  email: z.string().email("Nieprawidłowy adres e-mail").optional().or(z.literal("")),
   phone: z.string().optional(),
   industry: z.string().optional(),
   source: z.nativeEnum(LeadSource),
@@ -128,7 +128,7 @@ export function LeadsClient({ stages }: { stages: StageOpt[] }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Leads" description="Every prospect, scored and prioritised automatically.">
+      <PageHeader title="Leady" description="Każdy potencjalny klient, automatycznie oceniony i spriorytetyzowany.">
         <CsvImportDialog
           onImported={() => {
             load();
@@ -153,36 +153,36 @@ export function LeadsClient({ stages }: { stages: StageOpt[] }) {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by name, company or email…"
+              placeholder="Szukaj po nazwisku, firmie lub e-mailu…"
               className="pl-9"
             />
           </div>
           <div className="grid grid-cols-3 gap-2 lg:flex lg:w-auto">
             <Select value={stageId} onValueChange={setStageId}>
-              <SelectTrigger className="lg:w-40"><SelectValue placeholder="Stage" /></SelectTrigger>
+              <SelectTrigger className="lg:w-40"><SelectValue placeholder="Etap" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL}>All stages</SelectItem>
+                <SelectItem value={ALL}>Wszystkie etapy</SelectItem>
                 {stages.map((s) => (
                   <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={source} onValueChange={setSource}>
-              <SelectTrigger className="lg:w-40"><SelectValue placeholder="Source" /></SelectTrigger>
+              <SelectTrigger className="lg:w-40"><SelectValue placeholder="Źródło" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL}>All sources</SelectItem>
+                <SelectItem value={ALL}>Wszystkie źródła</SelectItem>
                 {SOURCES.map((s) => (
                   <SelectItem key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-              <SelectTrigger className="lg:w-36"><SelectValue placeholder="Sort" /></SelectTrigger>
+              <SelectTrigger className="lg:w-36"><SelectValue placeholder="Sortuj" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="score">Top score</SelectItem>
-                <SelectItem value="value">Deal value</SelectItem>
-                <SelectItem value="updated">Recent</SelectItem>
-                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="score">Najwyższy scoring</SelectItem>
+                <SelectItem value="value">Wartość transakcji</SelectItem>
+                <SelectItem value="updated">Ostatnio zmienione</SelectItem>
+                <SelectItem value="name">Nazwa</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -202,11 +202,11 @@ export function LeadsClient({ stages }: { stages: StageOpt[] }) {
       ) : sorted.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="No leads found"
-          description="Try clearing filters, or add your first lead to get started."
+          title="Brak leadów"
+          description="Spróbuj wyczyścić filtry albo dodaj pierwszego leada, aby zacząć."
           action={
             <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4" /> Add lead
+              <Plus className="h-4 w-4" /> Dodaj leada
             </Button>
           }
         />
@@ -216,11 +216,11 @@ export function LeadsClient({ stages }: { stages: StageOpt[] }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Lead</TableHead>
-                <TableHead className="hidden md:table-cell">Source</TableHead>
-                <TableHead className="hidden lg:table-cell">Stage</TableHead>
-                <TableHead className="hidden sm:table-cell">Priority</TableHead>
-                <TableHead className="text-right">Value</TableHead>
-                <TableHead className="text-right">Score</TableHead>
+                <TableHead className="hidden md:table-cell">Źródło</TableHead>
+                <TableHead className="hidden lg:table-cell">Etap</TableHead>
+                <TableHead className="hidden sm:table-cell">Priorytet</TableHead>
+                <TableHead className="text-right">Wartość</TableHead>
+                <TableHead className="text-right">Scoring</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -304,13 +304,13 @@ function LeadDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Failed to create lead");
-      toast.success("Lead added");
+      if (!res.ok) throw new Error("Nie udało się dodać leada");
+      toast.success("Lead dodany");
       reset({ source: LeadSource.OTHER, priority: Priority.MEDIUM });
       setOpen(false);
       onCreated();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Something went wrong");
+      toast.error(e instanceof Error ? e.message : "Coś poszło nie tak");
     } finally {
       setSaving(false);
     }
@@ -320,39 +320,39 @@ function LeadDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="h-4 w-4" /> New lead
+          <Plus className="h-4 w-4" /> Nowy lead
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add a lead</DialogTitle>
+          <DialogTitle>Dodaj leada</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2 space-y-1.5">
-              <Label htmlFor="name">Contact name *</Label>
-              <Input id="name" {...register("name")} placeholder="Jane Doe" />
+              <Label htmlFor="name">Osoba kontaktowa *</Label>
+              <Input id="name" {...register("name")} placeholder="Anna Kowalska" />
               {errors.name ? <p className="text-xs text-destructive">{errors.name.message}</p> : null}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="companyName">Company</Label>
+              <Label htmlFor="companyName">Firma</Label>
               <Input id="companyName" {...register("companyName")} placeholder="Acme Sp. z o.o." />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="industry">Industry</Label>
-              <Input id="industry" {...register("industry")} placeholder="Manufacturing" />
+              <Label htmlFor="industry">Branża</Label>
+              <Input id="industry" {...register("industry")} placeholder="Produkcja" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" {...register("email")} placeholder="jane@acme.com" />
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" type="email" {...register("email")} placeholder="anna@firma.pl" />
               {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Telefon</Label>
               <Input id="phone" {...register("phone")} placeholder="+48 600 000 000" />
             </div>
             <div className="space-y-1.5">
-              <Label>Source</Label>
+              <Label>Źródło</Label>
               <Controller
                 control={control}
                 name="source"
@@ -369,7 +369,7 @@ function LeadDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Priority</Label>
+              <Label>Priorytet</Label>
               <Controller
                 control={control}
                 name="priority"
@@ -386,21 +386,21 @@ function LeadDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="estimatedValue">Deal value</Label>
+              <Label htmlFor="estimatedValue">Wartość transakcji</Label>
               <Input id="estimatedValue" inputMode="numeric" {...register("estimatedValue")} placeholder="15000" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="budget">Budget</Label>
+              <Label htmlFor="budget">Budżet</Label>
               <Input id="budget" inputMode="numeric" {...register("budget")} placeholder="10000" />
             </div>
             <div className="col-span-2 space-y-1.5">
-              <Label>Initial stage</Label>
+              <Label>Etap początkowy</Label>
               <Controller
                 control={control}
                 name="stageId"
                 render={({ field }) => (
                   <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                    <SelectTrigger><SelectValue placeholder="First stage (default)" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Pierwszy etap (domyślnie)" /></SelectTrigger>
                     <SelectContent>
                       {stages.map((s) => (
                         <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
@@ -411,14 +411,14 @@ function LeadDialog({
               />
             </div>
             <div className="col-span-2 space-y-1.5">
-              <Label htmlFor="nextActionNote">Next action note</Label>
-              <Textarea id="nextActionNote" {...register("nextActionNote")} placeholder="e.g. Send intro email referencing their new product line" rows={2} />
+              <Label htmlFor="nextActionNote">Notatka o następnym kroku</Label>
+              <Textarea id="nextActionNote" {...register("nextActionNote")} placeholder="np. Wyślij e-mail otwierający z nawiązaniem do ich nowej linii produktów" rows={2} />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Anuluj</Button>
             <Button type="submit" disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add lead"}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Dodaj leada"}
             </Button>
           </DialogFooter>
         </form>

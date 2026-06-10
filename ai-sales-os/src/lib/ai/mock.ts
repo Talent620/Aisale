@@ -1,7 +1,7 @@
 import type { ContentKind } from "@prisma/client";
 import type { CompanyContext, LeadContext, OfferContext } from "./prompts";
 
-const firstName = (name?: string | null) => (name ? name.split(" ")[0] : "there");
+const firstName = (name?: string | null) => (name ? name.split(" ")[0] : "");
 
 export interface MockGenArgs {
   kind: ContentKind;
@@ -13,97 +13,98 @@ export interface MockGenArgs {
 }
 
 /**
- * Deterministic, presentable copy used when no live model is configured.
- * It references the real lead/offer/company so the product demos convincingly
- * out of the box — and is clearly labelled as a draft in the UI.
+ * Deterministic, presentable Polish copy used when no live model is
+ * configured. It references the real lead/offer/company so the product demos
+ * convincingly out of the box — and is clearly labelled as a draft in the UI.
  */
 export function mockGenerateContent(a: MockGenArgs): string {
   const fn = firstName(a.lead?.name);
+  const hi = fn ? `Dzień dobry, Panie/Pani ${fn}` : "Dzień dobry";
   const co = a.company.name;
-  const leadCo = a.lead?.companyName ?? "your team";
-  const offer = a.offer?.name ?? "what we do";
+  const leadCo = a.lead?.companyName ?? "Państwa firma";
+  const offer = a.offer?.name ?? "to, co robimy";
   const hook =
     a.userPrompt?.trim() ||
-    `helping ${a.lead?.industry ?? "teams like " + leadCo} get results faster`;
+    `pomagamy firmom z branży ${a.lead?.industry ?? "takich jak " + leadCo} szybciej zdobywać klientów`;
 
   switch (a.kind) {
     case "EMAIL":
-      return `Subject: A quick idea for ${leadCo}
+      return `Temat: Szybki pomysł dla ${leadCo}
 
-Hi ${fn},
+${hi},
 
-I came across ${leadCo} and noticed ${hook}. We help similar teams cut the busywork and move quicker — that's the core of ${offer} at ${co}.
+trafiłem na ${leadCo} i zwróciłem uwagę, że ${hook}. W ${co} pomagamy podobnym firmom uciąć żmudną pracę i działać szybciej — to sedno usługi ${offer}.
 
-Worth a 15-minute call next week to see if it's a fit? Happy to share one concrete idea regardless.
+Czy znajdzie się 15 minut w przyszłym tygodniu na krótką rozmowę? Niezależnie od decyzji chętnie podzielę się jednym konkretnym pomysłem.
 
-Best,
+Pozdrawiam,
 ${co}`;
     case "DM":
-      return `Hi ${fn} — saw what ${leadCo} is doing and it's impressive. We work with teams on ${hook}. Open to a quick chat to compare notes?`;
+      return `${hi} — widziałem, co robi ${leadCo}, robi wrażenie. Pracujemy z firmami nad tym: ${hook}. Ma Pan/Pani chwilę na krótką wymianę spostrzeżeń?`;
     case "FOLLOW_UP":
-      return `Hi ${fn},
+      return `${hi},
 
-Circling back on my last note. Since then I put together a short angle specific to ${leadCo} around ${hook}.
+wracam do mojej poprzedniej wiadomości. Od tego czasu przygotowałem krótki materiał konkretnie pod ${leadCo} — w temacie: ${hook}.
 
-No pressure — should I send it over, or is now not the right time?
+Bez nacisku — wysłać go, czy to nie jest dobry moment?
 
 ${co}`;
     case "AD":
-      return `A) "${leadCo} is leaving time on the table."
-${offer} turns the repetitive part of your pipeline into one calm workflow.
-→ See how it works
+      return `A) „${leadCo} zostawia pieniądze na stole.”
+${offer} zamienia żmudną część pozyskiwania klientów w jeden spokojny proces.
+→ Zobacz, jak to działa
 
-B) Stop chasing cold leads manually.
-Score, prioritise and reach the right people first — automatically.
-→ Start free
+B) Przestań ręcznie gonić zimne leady.
+Oceniaj, priorytetyzuj i docieraj najpierw do właściwych osób — automatycznie.
+→ Zacznij za darmo
 
-C) Built for small teams that punch above their weight.
-${offer}: fewer tools, more booked calls.
-→ Book a demo`;
+C) Dla małych zespołów, które grają powyżej swojej wagi.
+${offer}: mniej narzędzi, więcej umówionych rozmów.
+→ Umów prezentację`;
     case "POST":
-      return `Most small teams don't have a lead problem. They have a follow-up problem.
+      return `Większość małych firm nie ma problemu z leadami. Ma problem z follow-upem.
 
-The deals you "lost" usually weren't lost — they were forgotten on day 4.
+„Stracone” transakcje zwykle nie były stracone — zostały zapomniane czwartego dnia.
 
-What changed it for us: ${hook}, plus a system that surfaces the next action automatically.
+Co to u nas zmieniło: ${hook}, plus system, który sam podpowiada następny ruch.
 
-How do you keep follow-ups from slipping?`;
+A Wy jak pilnujecie, żeby follow-upy nie uciekały?`;
     case "OFFER":
-      return `${offer} — one-page overview
+      return `${offer} — oferta w pigułce
 
-The problem
-${leadCo} is spending hours on manual outreach and follow-up that rarely gets measured.
+Problem
+${leadCo} spędza godziny na ręcznym docieraniu do klientów i follow-upach, których nikt nie mierzy.
 
-What's included
+Co dostajecie
 ${(a.offer?.deliverables?.length
         ? a.offer.deliverables
-        : ["Lead capture & scoring setup", "Pipeline + follow-up automation", "Message & ad templates", "Weekly performance report"]
+        : ["Konfiguracja zbierania i scoringu leadów", "Automatyzacja lejka i follow-upów", "Szablony wiadomości i reklam", "Cotygodniowy raport wyników"]
       )
         .map((d) => `• ${d}`)
         .join("\n")}
 
-Outcome
-A predictable, measurable acquisition system you can actually run.
+Efekt
+Przewidywalny, mierzalny system pozyskiwania klientów, który realnie da się prowadzić.
 
-Timeline: 2–3 weeks to live.
-${a.offer?.priceFrom ? `Investment: from ${a.offer.priceFrom} ${a.company.currency ?? "PLN"}.` : "Investment: scoped to your needs."}`;
+Termin: 2–3 tygodnie do startu.
+${a.offer?.priceFrom ? `Inwestycja: od ${a.offer.priceFrom} ${a.company.currency ?? "PLN"}.` : "Inwestycja: wyceniana pod potrzeby."}`;
     case "SUBJECT_LINE":
-      return `1. A quick idea for ${leadCo}
-2. ${fn}, worth 15 minutes?
-3. The follow-up gap (and how to close it)
-4. One angle for ${leadCo}
-5. Should I send this over?
-6. ${a.lead?.industry ?? "Your team"} → fewer tools, more calls`;
+      return `1. Szybki pomysł dla ${leadCo}
+2. ${fn || "Dzień dobry"}, warte 15 minut?
+3. Luka w follow-upie (i jak ją zamknąć)
+4. Jeden konkret dla ${leadCo}
+5. Wysłać to Panu/Pani?
+6. ${a.lead?.industry ?? "Państwa firma"} → mniej narzędzi, więcej telefonów`;
     case "COLD_CALL_SCRIPT":
-      return `Opener: "Hi ${fn}, I know I'm calling out of the blue — can I take 20 seconds and you tell me if it's worth continuing?"
+      return `Otwarcie: „${hi}, dzwonię trochę znienacka — dam radę w 20 sekund, a Pan/Pani zdecyduje, czy warto kontynuować?”
 
-Reason: "We help teams like ${leadCo} with ${hook}, without adding more tools."
+Powód: „Pomagamy firmom takim jak ${leadCo} w temacie: ${hook} — bez dokładania kolejnych narzędzi.”
 
-Permission: "Does it make sense to grab 15 minutes this week?"
+Prośba: „Czy ma sens, żebyśmy złapali się na 15 minut w tym tygodniu?”
 
-If busy: "No problem — what's the best way to send a one-line summary?"`;
+Jeśli brak czasu: „Żaden problem — jak najlepiej wysłać jedno-zdaniowe podsumowanie?”`;
     default:
-      return `Draft for ${leadCo}: ${hook}.`;
+      return `Szkic dla ${leadCo}: ${hook}.`;
   }
 }
 
@@ -124,39 +125,39 @@ export function mockCopilot(message: string, s: MockCopilotSnapshot): string {
   const money = (n: number) =>
     new Intl.NumberFormat("pl-PL", { style: "currency", currency: s.currency, maximumFractionDigits: 0 }).format(n);
 
-  if (m.includes("today") || m.includes("dzi") || m.includes("next") || m.includes("focus")) {
-    return `Here's where I'd focus today:
+  if (m.includes("today") || m.includes("dzi") || m.includes("next") || m.includes("focus") || m.includes("skup")) {
+    return `Na czym skupiłbym się dzisiaj:
 
-1. ${s.hotLeads} hot lead${s.hotLeads === 1 ? "" : "s"} (score ≥ 75) — reach out before they cool.
-2. ${s.overdueTasks} overdue task${s.overdueTasks === 1 ? "" : "s"} ${s.overdueTasks ? "— clear these first" : "— nice, nothing overdue"}.
-3. ${s.pendingApprovals} AI draft${s.pendingApprovals === 1 ? "" : "s"} waiting in Approvals.
+1. Gorące leady (scoring ≥ 75): ${s.hotLeads} — odezwij się, zanim ostygną.
+2. Zaległe zadania: ${s.overdueTasks}${s.overdueTasks ? " — najpierw wyczyść te" : " — brawo, nic nie zalega"}.
+3. Drafty AI czekające w Akceptacjach: ${s.pendingApprovals}.
 
-Why: hot leads + overdue follow-ups are where deals leak fastest. Want me to draft the first outreach?`;
+Dlaczego: gorące leady i zaległe follow-upy to miejsca, gdzie transakcje wyciekają najszybciej. Mam przygotować pierwszą wiadomość?`;
   }
   if (m.includes("summary") || m.includes("how are we") || m.includes("podsum") || m.includes("status")) {
-    return `Quick read on the business:
+    return `Szybki obraz biznesu:
 
-• Pipeline: ${money(s.pipelineValue)} across ${s.totalLeads} leads (${s.hotLeads} hot).
-• Won so far: ${money(s.wonValue)}.
-• Reply rate: ${s.replyRate}%.
-• Open tasks: ${s.openTasks} (${s.overdueTasks} overdue).
+• Lejek: ${money(s.pipelineValue)} w ${s.totalLeads} leadach (gorących: ${s.hotLeads}).
+• Wygrane do tej pory: ${money(s.wonValue)}.
+• Wskaźnik odpowiedzi: ${s.replyRate}%.
+• Otwarte zadania: ${s.openTasks} (zaległych: ${s.overdueTasks}).
 
-${s.replyRate < 15 ? "Reply rate looks low — your messaging or targeting is the lever to pull." : "Reply rate is healthy — focus on volume to the right segments."}`;
+${s.replyRate < 15 ? "Wskaźnik odpowiedzi jest niski — dźwignią jest treść wiadomości albo targetowanie." : "Wskaźnik odpowiedzi zdrowy — skup się na wolumenie do najlepszych segmentów."}`;
   }
   if (m.includes("improve") || m.includes("funnel") || m.includes("popraw") || m.includes("lejek")) {
-    return `Funnel suggestions based on current numbers:
+    return `Sugestie dla lejka na bazie obecnych liczb:
 
-• ${s.replyRate < 15 ? "Reply rate is the bottleneck. Tighten the first line and personalise the hook per segment." : "Top of funnel is converting — add volume to your best source."}
-• ${s.overdueTasks > 0 ? `You have ${s.overdueTasks} overdue follow-ups; consistency here usually lifts conversion more than new leads.` : "Follow-ups are on time — keep it up."}
-• Move qualified leads to a concrete offer faster — speed-to-proposal correlates with close rate.
+• ${s.replyRate < 15 ? "Wąskim gardłem jest wskaźnik odpowiedzi. Zaostrz pierwsze zdanie i personalizuj hak pod segment." : "Góra lejka konwertuje — dołóż wolumen do najlepszego źródła."}
+• ${s.overdueTasks > 0 ? `Masz ${s.overdueTasks} zaległych follow-upów; konsekwencja tutaj zwykle podnosi konwersję bardziej niż nowe leady.` : "Follow-upy idą na czas — tak trzymaj."}
+• Szybciej przeprowadzaj zakwalifikowane leady do konkretnej oferty — tempo wysłania oferty koreluje z domykaniem.
 
-I can draft the messages for any of these.`;
+Mogę przygotować wiadomości pod każdy z tych punktów.`;
   }
-  return `I can help you decide what to do next, draft outreach, read your funnel, or summarise the business.
+  return `Pomogę Ci zdecydować, co robić dalej, napisać wiadomości, przeczytać lejek albo podsumować biznes.
 
-Right now: ${s.totalLeads} leads, ${s.hotLeads} hot, ${s.openTasks} open tasks, ${s.pendingApprovals} approvals pending, ${money(s.pipelineValue)} in pipeline.
+Teraz: ${s.totalLeads} leadów, gorących ${s.hotLeads}, otwartych zadań ${s.openTasks}, akceptacji w kolejce ${s.pendingApprovals}, lejek ${money(s.pipelineValue)}.
 
-Try: "what should I focus on today?", "summarise the business", or "how do I improve the funnel?"
+Spróbuj: „na czym mam się dziś skupić?”, „podsumuj biznes” albo „jak poprawić lejek?”.
 
-(Note: running on the built-in mock — add an AI key in .env for live, tailored answers.)`;
+(Uwaga: działa wbudowany tryb demo — dodaj klucz AI w .env, aby dostawać żywe, dopasowane odpowiedzi.)`;
 }

@@ -76,9 +76,22 @@ const STATUS_VARIANT: Record<CampaignStatus, "default" | "secondary" | "success"
   ARCHIVED: "outline",
 };
 
-function label(s: string) {
-  return s.charAt(0) + s.slice(1).toLowerCase().replace("_", " ");
-}
+const CHANNEL_LABELS: Record<CampaignChannel, string> = {
+  EMAIL: "E-mail",
+  LINKEDIN: "LinkedIn",
+  FACEBOOK: "Facebook",
+  INSTAGRAM: "Instagram",
+  COLD_CALL: "Zimne telefony",
+  MULTI: "Wiele kanałów",
+};
+
+const STATUS_LABELS: Record<CampaignStatus, string> = {
+  DRAFT: "Szkic",
+  ACTIVE: "Aktywna",
+  PAUSED: "Wstrzymana",
+  COMPLETED: "Zakończona",
+  ARCHIVED: "Zarchiwizowana",
+};
 
 export function CampaignsClient({
   audiences,
@@ -112,8 +125,8 @@ export function CampaignsClient({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Campaigns"
-        description="Group your outreach into measurable plays."
+        title="Kampanie"
+        description="Grupuj działania outreach w mierzalne kampanie."
       >
         <CreateCampaignDialog audiences={audiences} offers={offers} onCreated={load} />
       </PageHeader>
@@ -129,8 +142,8 @@ export function CampaignsClient({
       ) : items.length === 0 ? (
         <EmptyState
           icon={Megaphone}
-          title="No campaigns yet"
-          description="Create your first campaign to organise outreach and track replies."
+          title="Brak kampanii"
+          description="Utwórz pierwszą kampanię, aby uporządkować outreach i śledzić odpowiedzi."
           action={
             <CreateCampaignDialog
               audiences={audiences}
@@ -149,21 +162,21 @@ export function CampaignsClient({
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{c.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {label(c.channel)}
+                        {CHANNEL_LABELS[c.channel]}
                         {c.audience ? ` · ${c.audience.name}` : ""}
                       </p>
                     </div>
-                    <Badge variant={STATUS_VARIANT[c.status]}>{label(c.status)}</Badge>
+                    <Badge variant={STATUS_VARIANT[c.status]}>{STATUS_LABELS[c.status]}</Badge>
                   </div>
                   {c.goal ? (
                     <p className="line-clamp-2 text-sm text-muted-foreground">{c.goal}</p>
                   ) : null}
                   <div className="grid grid-cols-4 gap-2 border-t pt-3 text-center">
-                    <Stat label="Drafts" value={c._count.messages} />
-                    <Stat label="Sent" value={c.sentCount} />
-                    <Stat label="Replied" value={c.repliedCount} />
+                    <Stat label="Szkice" value={c._count.messages} />
+                    <Stat label="Wysłano" value={c.sentCount} />
+                    <Stat label="Odpowiedzi" value={c.repliedCount} />
                     <Stat
-                      label="Reply %"
+                      label="% odpowiedzi"
                       value={c.sentCount ? `${pct(c.repliedCount, c.sentCount)}%` : "—"}
                     />
                   </div>
@@ -206,7 +219,7 @@ function CreateCampaignDialog({
 
   async function submit() {
     if (name.trim().length < 2) {
-      toast.error("Please enter a campaign name");
+      toast.error("Podaj nazwę kampanii");
       return;
     }
     setSaving(true);
@@ -224,7 +237,7 @@ function CreateCampaignDialog({
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Campaign created");
+      toast.success("Kampania utworzona");
       setName("");
       setGoal("");
       setChannel("EMAIL");
@@ -234,7 +247,7 @@ function CreateCampaignDialog({
       setOpen(false);
       onCreated();
     } catch {
-      toast.error("Could not create campaign");
+      toast.error("Nie udało się utworzyć kampanii");
     } finally {
       setSaving(false);
     }
@@ -245,36 +258,36 @@ function CreateCampaignDialog({
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-1.5 h-4 w-4" />
-          New campaign
+          Nowa kampania
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New campaign</DialogTitle>
+          <DialogTitle>Nowa kampania</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="c-name">Name</Label>
+            <Label htmlFor="c-name">Nazwa</Label>
             <Input
               id="c-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Q3 manufacturing outreach"
+              placeholder="Outreach Q3 — firmy produkcyjne"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="c-goal">Goal</Label>
+            <Label htmlFor="c-goal">Cel</Label>
             <Textarea
               id="c-goal"
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
-              placeholder="Book 10 discovery calls with mid-size manufacturers"
+              placeholder="Umówić 10 rozmów wstępnych ze średnimi firmami produkcyjnymi"
               rows={2}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Channel</Label>
+              <Label>Kanał</Label>
               <Select value={channel} onValueChange={(v) => setChannel(v as CampaignChannel)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -282,7 +295,7 @@ function CreateCampaignDialog({
                 <SelectContent>
                   {CHANNELS.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {label(c)}
+                      {CHANNEL_LABELS[c]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -297,7 +310,7 @@ function CreateCampaignDialog({
                 <SelectContent>
                   {STATUSES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {label(s)}
+                      {STATUS_LABELS[s]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -306,13 +319,13 @@ function CreateCampaignDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Audience</Label>
+              <Label>Grupa docelowa</Label>
               <Select value={audienceId} onValueChange={setAudienceId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Optional" />
+                  <SelectValue placeholder="Opcjonalnie" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>None</SelectItem>
+                  <SelectItem value={NONE}>Brak</SelectItem>
                   {audiences.map((au) => (
                     <SelectItem key={au.id} value={au.id}>
                       {au.name}
@@ -322,13 +335,13 @@ function CreateCampaignDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Offer</Label>
+              <Label>Oferta</Label>
               <Select value={offerId} onValueChange={setOfferId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Optional" />
+                  <SelectValue placeholder="Opcjonalnie" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>None</SelectItem>
+                  <SelectItem value={NONE}>Brak</SelectItem>
                   {offers.map((o) => (
                     <SelectItem key={o.id} value={o.id}>
                       {o.name}
@@ -341,11 +354,11 @@ function CreateCampaignDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={saving}>
-            Cancel
+            Anuluj
           </Button>
           <Button onClick={submit} disabled={saving}>
             {saving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
-            Create
+            Utwórz
           </Button>
         </DialogFooter>
       </DialogContent>

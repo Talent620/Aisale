@@ -99,7 +99,7 @@ export function ProspectingClient({
 
   async function runSearch() {
     if (category.trim().length < 2 || city.trim().length < 2) {
-      toast.error("Enter a business category and a city");
+      toast.error("Podaj branżę i miasto");
       return;
     }
     setSearching(true);
@@ -117,7 +117,7 @@ export function ProspectingClient({
       // Pre-select the best leads: businesses without a website.
       setSelected(new Set(data.candidates.filter((c) => !c.hasWebsite).map(candidateKey)));
     } catch {
-      toast.error("Search failed — try again");
+      toast.error("Wyszukiwanie nie powiodło się — spróbuj ponownie");
     } finally {
       setSearching(false);
     }
@@ -127,7 +127,7 @@ export function ProspectingClient({
     if (!result) return;
     const chosen = result.candidates.filter((c) => selected.has(candidateKey(c)));
     if (chosen.length === 0) {
-      toast.error("Select at least one business");
+      toast.error("Zaznacz przynajmniej jedną firmę");
       return;
     }
     setImporting(true);
@@ -140,9 +140,9 @@ export function ProspectingClient({
       if (!res.ok) throw new Error("Import failed");
       const data = (await res.json()) as { created: number; deduped: number; audited: number };
       toast.success(
-        `Imported ${data.created} lead${data.created === 1 ? "" : "s"}` +
-          (data.deduped ? ` · ${data.deduped} duplicate(s) skipped` : "") +
-          (data.audited ? ` · ${data.audited} website(s) audited` : ""),
+        `Zaimportowano: ${data.created}` +
+          (data.deduped ? ` · pominięte duplikaty: ${data.deduped}` : "") +
+          (data.audited ? ` · zaudytowane strony: ${data.audited}` : ""),
       );
       setResult({
         ...result,
@@ -151,7 +151,7 @@ export function ProspectingClient({
       setSelected(new Set());
       router.refresh();
     } catch {
-      toast.error("Import failed — try again");
+      toast.error("Import nie powiódł się — spróbuj ponownie");
     } finally {
       setImporting(false);
     }
@@ -168,10 +168,10 @@ export function ProspectingClient({
         body: JSON.stringify(patch),
       });
       if (!res.ok) throw new Error();
-      toast.success("Autopilot prospecting settings saved");
+      toast.success("Ustawienia zapisane");
     } catch {
       setSettings(settings);
-      toast.error("Could not save settings");
+      toast.error("Nie udało się zapisać ustawień");
     } finally {
       setSavingSettings(false);
     }
@@ -186,29 +186,29 @@ export function ProspectingClient({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Lead Finder"
-        description="Find local businesses with no website (or a weak one) on Google Maps and in business registries — phone numbers included."
+        title="Szukaj firm"
+        description="Znajdź lokalne firmy bez strony WWW (lub ze słabą) w Google Maps i rejestrach — z numerami telefonów."
       >
         <Badge variant={live ? "default" : "secondary"}>
-          {live ? `Live: ${providers.filter((p) => p.live).map((p) => p.name).join(" + ")}` : "Sample data — add GOOGLE_PLACES_API_KEY"}
+          {live ? `Na żywo: ${providers.filter((p) => p.live).map((p) => p.name).join(" + ")}` : "Dane przykładowe — dodaj GOOGLE_PLACES_API_KEY"}
         </Badge>
       </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <KpiCard label="Imported from Lead Finder" value={stats.importedTotal} icon={Import} />
+        <KpiCard label="Zaimportowane firmy" value={stats.importedTotal} icon={Import} />
         <KpiCard
-          label="Leads without a website"
+          label="Leady bez strony WWW"
           value={stats.noWebsiteTotal}
           icon={GlobeLock}
           accent="success"
-          hint="The easiest pitch — they need a site"
+          hint="Najłatwiejsza sprzedaż — potrzebują strony"
         />
         <KpiCard
-          label="Modernization leads"
+          label="Leady na modernizację"
           value={stats.modernizationTotal}
           icon={Wrench}
           accent="warning"
-          hint="Weak / slow / insecure websites"
+          hint="Słabe / wolne / niezabezpieczone strony"
         />
       </div>
 
@@ -216,17 +216,17 @@ export function ProspectingClient({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Radar className="h-4 w-4" /> Search local businesses
+            <Radar className="h-4 w-4" /> Wyszukaj lokalne firmy
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-[1fr_1fr_auto]">
             <div className="space-y-1.5">
-              <Label htmlFor="pf-category">Business category</Label>
+              <Label htmlFor="pf-category">Branża / kategoria</Label>
               <Input
                 id="pf-category"
                 list="pf-category-list"
-                placeholder="e.g. fryzjer, mechanik, dentysta…"
+                placeholder="np. fryzjer, mechanik, dentysta…"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && runSearch()}
@@ -238,10 +238,10 @@ export function ProspectingClient({
               </datalist>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="pf-city">City</Label>
+              <Label htmlFor="pf-city">Miasto</Label>
               <Input
                 id="pf-city"
-                placeholder="e.g. Warszawa"
+                placeholder="np. Warszawa"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && runSearch()}
@@ -250,7 +250,7 @@ export function ProspectingClient({
             <div className="flex items-end">
               <Button onClick={runSearch} disabled={searching} className="w-full sm:w-auto">
                 {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                Search
+                Szukaj
               </Button>
             </div>
           </div>
@@ -261,7 +261,7 @@ export function ProspectingClient({
               checked={noWebsiteOnly}
               onChange={(e) => setNoWebsiteOnly(e.target.checked)}
             />
-            Only businesses without a website
+            Tylko firmy bez strony WWW
           </label>
         </CardContent>
       </Card>
@@ -270,29 +270,29 @@ export function ProspectingClient({
       {searching ? (
         <Card>
           <CardContent className="flex items-center justify-center gap-2 py-14 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Searching {live ? "live sources" : "sample data"}…
+            <Loader2 className="h-4 w-4 animate-spin" /> Szukam {live ? "w źródłach na żywo" : "w danych przykładowych"}…
           </CardContent>
         </Card>
       ) : result ? (
         result.candidates.length === 0 ? (
           <EmptyState
             icon={Building2}
-            title="No businesses found"
-            description="Try a broader category, a different city, or disable the no-website filter."
+            title="Nie znaleziono firm"
+            description="Spróbuj szerszej kategorii, innego miasta albo wyłącz filtr braku strony."
           />
         ) : (
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base">
-                {result.candidates.length} found · {result.noWebsiteCount} without a website
+                Znaleziono {result.candidates.length} · bez strony: {result.noWebsiteCount}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={toggleAll}>
-                  {selected.size === result.candidates.length ? "Deselect all" : "Select all"}
+                  {selected.size === result.candidates.length ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
                 </Button>
                 <Button size="sm" onClick={importSelected} disabled={importing || selected.size === 0}>
                   {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Import className="h-4 w-4" />}
-                  Import {selected.size} selected
+                  Importuj zaznaczone ({selected.size})
                 </Button>
               </div>
             </CardHeader>
@@ -305,7 +305,7 @@ export function ProspectingClient({
                     checked={autoAudit}
                     onChange={(e) => setAutoAudit(e.target.checked)}
                   />
-                  Audit websites on import
+                  Audytuj strony przy imporcie
                 </label>
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
@@ -314,7 +314,7 @@ export function ProspectingClient({
                     checked={autoDraft}
                     onChange={(e) => setAutoDraft(e.target.checked)}
                   />
-                  AI first-touch draft → approvals
+                  Draft AI pierwszego kontaktu → Akceptacje
                 </label>
               </div>
 
@@ -346,12 +346,12 @@ export function ProspectingClient({
                           <span className="font-medium text-foreground">{c.name}</span>
                           {!c.hasWebsite ? (
                             <Badge className="bg-success/10 text-success border-success/20" variant="outline">
-                              No website
+                              Brak strony
                             </Badge>
                           ) : (
-                            <Badge variant="secondary">Has website</Badge>
+                            <Badge variant="secondary">Ma stronę</Badge>
                           )}
-                          {c.registeredAt ? <Badge variant="secondary">New company</Badge> : null}
+                          {c.registeredAt ? <Badge variant="secondary">Nowa firma</Badge> : null}
                           <Badge variant="outline" className="text-muted-foreground">
                             {c.sourceDetail}
                           </Badge>
@@ -399,8 +399,8 @@ export function ProspectingClient({
       ) : (
         <EmptyState
           icon={Radar}
-          title="Find businesses that need a website"
-          description='Search "fryzjer" in "Warszawa" — Google Maps shows which businesses have no website, and CEIDG surfaces freshly registered companies.'
+          title="Znajdź firmy, które potrzebują strony"
+          description='Wyszukaj „fryzjer” w „Warszawa” — Google Maps pokaże, kto nie ma strony, a CEIDG świeżo zarejestrowane firmy.'
         />
       )}
 
@@ -408,13 +408,12 @@ export function ProspectingClient({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Zap className="h-4 w-4" /> Autopilot prospecting
+            <Zap className="h-4 w-4" /> Automatyczne wyszukiwanie (autopilot)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            The acquisition autopilot can run these searches automatically every tick and import what it
-            finds — bounded by your daily lead cap.
+            Autopilot może sam uruchamiać te wyszukiwania w każdym cyklu i importować wyniki — w granicach dziennego limitu leadów.
           </p>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
             <label className="flex cursor-pointer items-center gap-2">
@@ -425,7 +424,7 @@ export function ProspectingClient({
                 disabled={savingSettings}
                 onChange={(e) => saveSettings({ prospectingEnabled: e.target.checked })}
               />
-              Enable automatic prospecting
+              Włącz automatyczne wyszukiwanie
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
@@ -435,7 +434,7 @@ export function ProspectingClient({
                 disabled={savingSettings}
                 onChange={(e) => saveSettings({ prospectingNoWebsiteOnly: e.target.checked })}
               />
-              Only import businesses without a website
+              Importuj tylko firmy bez strony
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <input
@@ -445,12 +444,12 @@ export function ProspectingClient({
                 disabled={savingSettings}
                 onChange={(e) => saveSettings({ auditWebsites: e.target.checked })}
               />
-              Auto-audit lead websites
+              Automatycznie audytuj strony leadów
             </label>
           </div>
 
           <div className="space-y-2">
-            <Label>Saved searches (category @ city)</Label>
+            <Label>Zapisane wyszukiwania (branża @ miasto)</Label>
             <div className="flex flex-wrap gap-2">
               {settings.prospectingQueries.map((q) => (
                 <Badge key={q} variant="secondary" className="gap-1 pr-1">
@@ -469,7 +468,7 @@ export function ProspectingClient({
                 </Badge>
               ))}
               {settings.prospectingQueries.length === 0 ? (
-                <span className="text-xs text-muted-foreground">No saved searches yet.</span>
+                <span className="text-xs text-muted-foreground">Brak zapisanych wyszukiwań.</span>
               ) : null}
             </div>
             <div className="flex max-w-md gap-2">
@@ -492,7 +491,7 @@ export function ProspectingClient({
                   setNewQuery("");
                 }}
               >
-                <Plus className="h-4 w-4" /> Add
+                <Plus className="h-4 w-4" /> Dodaj
               </Button>
             </div>
           </div>

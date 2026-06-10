@@ -17,7 +17,7 @@ async function findCompany(slug: string) {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const company = await findCompany(params.slug);
   return {
-    title: company ? `${company.name} — Get in touch` : "Get in touch",
+    title: company ? `${company.name} — Skontaktuj się` : "Kontakt",
     robots: { index: true },
   };
 }
@@ -35,9 +35,9 @@ export default async function LandingPage({ params }: { params: { slug: string }
   const token = String((integ.config as Record<string, unknown> | null)?.token ?? "");
 
   const benefits = [
-    "Free, no-obligation consultation",
-    "Concrete recommendations within 24 hours",
-    "We reply the same business day",
+    "Darmowa, niezobowiązująca konsultacja",
+    "Konkretne rekomendacje w 24 godziny",
+    "Odpowiadamy tego samego dnia roboczego",
   ];
 
   return (
@@ -46,11 +46,10 @@ export default async function LandingPage({ params }: { params: { slug: string }
         <section className="space-y-6">
           <p className="text-sm font-medium uppercase tracking-widest text-primary">{company.name}</p>
           <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight text-foreground">
-            More customers{company.industry ? ` for your ${company.industry.toLowerCase()} business` : " for your business"}, starting this week.
+            Więcej klientów dla Twojej firmy{company.industry ? ` (${company.industry.toLowerCase()})` : ""} — już od tego tygodnia.
           </h1>
           <p className="text-base leading-relaxed text-muted-foreground">
-            Leave your details and we&apos;ll get back to you with a concrete plan — no fluff,
-            no commitment.
+            Zostaw kontakt, a wrócimy z konkretnym planem — bez lania wody i bez zobowiązań.
           </p>
           <ul className="space-y-3">
             {benefits.map((b) => (
@@ -63,8 +62,8 @@ export default async function LandingPage({ params }: { params: { slug: string }
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-          <h2 className="font-display text-xl font-semibold">Get your free consultation</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Takes 30 seconds. We&apos;ll do the rest.</p>
+          <h2 className="font-display text-xl font-semibold">Odbierz darmową konsultację</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Zajmie 30 sekund. Resztą zajmiemy się my.</p>
           <div className="mt-6">
             <LandingForm
               token={token}

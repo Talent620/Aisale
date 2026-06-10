@@ -21,10 +21,10 @@ const optionalString = z
   .or(z.literal("").transform(() => undefined));
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(2, "Enter your name").max(80),
-  companyName: z.string().trim().min(2, "Enter your company name").max(120),
-  email: z.string().trim().toLowerCase().email("Enter a valid email"),
-  password: z.string().min(8, "Use at least 8 characters").max(72),
+  name: z.string().trim().min(2, "Podaj imię").max(80),
+  companyName: z.string().trim().min(2, "Podaj nazwę firmy").max(120),
+  email: z.string().trim().toLowerCase().email("Podaj poprawny e-mail"),
+  password: z.string().min(8, "Użyj min. 8 znaków").max(72),
 });
 export type RegisterInput = z.infer<typeof registerSchema>;
 
@@ -34,7 +34,7 @@ export const loginSchema = z.object({
 });
 
 export const leadCreateSchema = z.object({
-  name: z.string().trim().min(2, "Contact name is required").max(120),
+  name: z.string().trim().min(2, "Imię i nazwisko są wymagane").max(120),
   email: z.string().trim().toLowerCase().email().optional().or(z.literal("")),
   phone: optionalString,
   position: optionalString,
@@ -61,12 +61,12 @@ export const leadUpdateSchema = leadCreateSchema.partial().extend({
 });
 
 export const noteCreateSchema = z.object({
-  body: z.string().trim().min(1, "Note can't be empty").max(5000),
+  body: z.string().trim().min(1, "Notatka nie może być pusta").max(5000),
   pinned: z.boolean().default(false),
 });
 
 export const taskCreateSchema = z.object({
-  title: z.string().trim().min(2, "Task title is required").max(160),
+  title: z.string().trim().min(2, "Tytuł zadania jest wymagany").max(160),
   description: optionalString,
   priority: z.nativeEnum(Priority).default(Priority.MEDIUM),
   status: z.nativeEnum(TaskStatus).default(TaskStatus.TODO),

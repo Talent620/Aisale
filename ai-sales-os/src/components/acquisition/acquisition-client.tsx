@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { pl } from "date-fns/locale";
 import { toast } from "sonner";
 import {
   Magnet,
@@ -49,6 +50,13 @@ import { cn } from "@/lib/utils";
 const AUTO = "AUTO";
 const WEBHOOK_PROVIDERS = ["meta", "google", "typeform", "tally", "calendly", "zapier"];
 const CHANNEL_OPTIONS: CampaignChannel[] = ["EMAIL", "LINKEDIN", "FACEBOOK", "INSTAGRAM", "COLD_CALL"];
+const CHANNEL_LABEL: Partial<Record<CampaignChannel, string>> = {
+  EMAIL: "e-mail",
+  LINKEDIN: "LinkedIn",
+  FACEBOOK: "Facebook",
+  INSTAGRAM: "Instagram",
+  COLD_CALL: "zimny telefon",
+};
 
 interface Audience {
   id: string;
@@ -177,11 +185,11 @@ export function AcquisitionClient({
         body: JSON.stringify({ enabled: next }),
       });
       if (!res.ok) throw new Error();
-      toast.success(next ? "Autopilot is on — it’ll source & draft on a schedule" : "Autopilot paused");
+      toast.success(next ? "Autopilot włączony — będzie pozyskiwać i tworzyć szkice według harmonogramu" : "Autopilot wstrzymany");
       router.refresh();
     } catch {
       setEnabled(!next);
-      toast.error("Could not update autopilot");
+      toast.error("Nie udało się zaktualizować autopilota");
     }
   }
 
@@ -199,19 +207,19 @@ export function AcquisitionClient({
         skippedReason?: string;
       } = await res.json();
       if (r.status === "SKIPPED") {
-        toast.info(`Skipped — ${r.skippedReason ?? "nothing to do right now"}`);
+        toast.info(`Pominięto — ${r.skippedReason ?? "w tej chwili nic do zrobienia"}`);
       } else {
         const bits = [
-          r.created ? `${r.created} new` : "",
-          r.drafted ? `${r.drafted} drafted` : "",
-          r.enrolled ? `${r.enrolled} enrolled` : "",
-          r.advanced ? `${r.advanced} advanced` : "",
+          r.created ? `${r.created} nowych` : "",
+          r.drafted ? `${r.drafted} szkiców` : "",
+          r.enrolled ? `${r.enrolled} zapisanych do sekwencji` : "",
+          r.advanced ? `${r.advanced} przesuniętych dalej` : "",
         ].filter(Boolean);
-        toast.success(bits.length ? `Autopilot: ${bits.join(" · ")}` : "Autopilot ran — nothing new this pass");
+        toast.success(bits.length ? `Autopilot: ${bits.join(" · ")}` : "Autopilot zakończył przebieg — tym razem nic nowego");
       }
       router.refresh();
     } catch {
-      toast.error("Run failed");
+      toast.error("Uruchomienie nie powiodło się");
     } finally {
       setRunning(false);
     }
@@ -220,25 +228,25 @@ export function AcquisitionClient({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Acquisition Autopilot"
-        description="A self-driving engine that sources prospects from your ICP, enriches them, and drafts every outreach into Approvals — on a schedule. Nothing is ever sent without you."
+        title="Autopilot pozyskiwania"
+        description="Samosterujący silnik, który pozyskuje potencjalnych klientów z Twojego ICP, wzbogaca ich dane i każdy kontakt przygotowuje jako szkic w Akceptacjach — według harmonogramu. Nic nie zostanie wysłane bez Ciebie."
       >
         <StatusPill enabled={enabled} live={provider.live} />
         <Button onClick={runNow} disabled={running}>
           {running ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Play className="mr-1.5 h-4 w-4" />}
-          Run now
+          Uruchom teraz
         </Button>
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile
           icon={Magnet}
-          label="Captured today"
+          label="Pozyskane dzisiaj"
           value={`${stats.capturedToday}/${settings.dailyLeadCap}`}
-          sub={`target ${settings.targetPerDay}/day`}
+          sub={`cel ${settings.targetPerDay}/dzień`}
         />
-        <StatTile icon={Send} label="Drafts to review" value={stats.pendingApprovals} sub="in Approvals" accent={stats.pendingApprovals > 0} />
-        <StatTile icon={Users} label="In sequences" value={stats.activeEnrollments} sub="active enrollments" />
+        <StatTile icon={Send} label="Szkice do przeglądu" value={stats.pendingApprovals} sub="w Akceptacjach" accent={stats.pendingApprovals > 0} />
+        <StatTile icon={Users} label="W sekwencjach" value={stats.activeEnrollments} sub="aktywne zapisy" />
         <NextRunTile enabled={enabled} lastRunAt={settings.lastRunAt} cadenceMinutes={settings.cadenceMinutes} />
       </div>
 
@@ -246,11 +254,11 @@ export function AcquisitionClient({
         <TabsList className="grid w-full grid-cols-2 sm:inline-flex sm:w-auto">
           <TabsTrigger value="autopilot">Autopilot</TabsTrigger>
           <TabsTrigger value="sequences">
-            Sequences
+            Sekwencje
             {sequences.length ? <span className="ml-1.5 text-xs text-muted-foreground">{sequences.length}</span> : null}
           </TabsTrigger>
-          <TabsTrigger value="inbound">Inbound</TabsTrigger>
-          <TabsTrigger value="outbound">Outbound</TabsTrigger>
+          <TabsTrigger value="inbound">Przychodzące</TabsTrigger>
+          <TabsTrigger value="outbound">Wychodzące</TabsTrigger>
         </TabsList>
 
         <TabsContent value="autopilot" className="space-y-5">
@@ -299,8 +307,8 @@ function StatusPill({ enabled, live }: { enabled: boolean; live: boolean }) {
         ) : null}
         <span className={cn("relative inline-flex h-2 w-2 rounded-full", enabled ? "bg-success" : "bg-muted-foreground/50")} />
       </span>
-      {enabled ? "Autopilot active" : "Autopilot paused"}
-      {!live ? <span className="opacity-60">· sample data</span> : null}
+      {enabled ? "Autopilot aktywny" : "Autopilot wstrzymany"}
+      {!live ? <span className="opacity-60">· dane przykładowe</span> : null}
     </span>
   );
 }
@@ -351,13 +359,13 @@ function NextRunTile({
 
   let label = "—";
   if (enabled) {
-    if (!lastRunAt) label = "soon";
+    if (!lastRunAt) label = "wkrótce";
     else {
       const next = new Date(new Date(lastRunAt).getTime() + cadenceMinutes * 60_000);
-      label = next.getTime() <= Date.now() ? "due now" : formatDistanceToNow(next, { addSuffix: true });
+      label = next.getTime() <= Date.now() ? "lada moment" : formatDistanceToNow(next, { addSuffix: true, locale: pl });
     }
   }
-  return <StatTile icon={Clock} label="Next run" value={label} sub={enabled ? `every ${cadenceMinutes}m` : "paused"} />;
+  return <StatTile icon={Clock} label="Następny przebieg" value={label} sub={enabled ? `co ${cadenceMinutes} min` : "wstrzymany"} />;
 }
 
 /* ------------------------------ Engine panel ------------------------------ */
@@ -398,10 +406,10 @@ function EnginePanel({
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
-      toast.success("Autopilot settings saved");
+      toast.success("Ustawienia autopilota zapisane");
       onSaved();
     } catch {
-      toast.error("Could not save settings");
+      toast.error("Nie udało się zapisać ustawień");
     } finally {
       setSaving(false);
     }
@@ -413,7 +421,7 @@ function EnginePanel({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Zap className="h-4 w-4" /> Engine
+          <Zap className="h-4 w-4" /> Silnik
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -424,9 +432,9 @@ function EnginePanel({
               <Power className="h-4 w-4" />
             </span>
             <div>
-              <p className="text-sm font-medium">Autonomous acquisition</p>
+              <p className="text-sm font-medium">Autonomiczne pozyskiwanie</p>
               <p className="text-xs text-muted-foreground">
-                When on, the engine sources, enriches, enrolls and drafts on its schedule. Everything lands in Approvals.
+                Po włączeniu silnik pozyskuje, wzbogaca, zapisuje do sekwencji i tworzy szkice według harmonogramu. Wszystko trafia do Akceptacji.
               </p>
             </div>
           </div>
@@ -435,59 +443,59 @@ function EnginePanel({
 
         {/* Pacing */}
         <div>
-          <SectionLabel icon={Gauge}>Pacing & limits</SectionLabel>
+          <SectionLabel icon={Gauge}>Tempo i limity</SectionLabel>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <NumberField label="Run every (min)" value={form.cadenceMinutes} min={5} max={1440} onChange={(v) => set("cadenceMinutes", v)} />
-            <NumberField label="Daily lead cap" value={form.dailyLeadCap} min={0} max={1000} onChange={(v) => set("dailyLeadCap", v)} />
-            <NumberField label="Target / day" value={form.targetPerDay} min={0} max={1000} onChange={(v) => set("targetPerDay", v)} />
-            <NumberField label="Per ICP / run" value={form.perRunBatch} min={1} max={100} onChange={(v) => set("perRunBatch", v)} />
+            <NumberField label="Uruchamiaj co (min)" value={form.cadenceMinutes} min={5} max={1440} onChange={(v) => set("cadenceMinutes", v)} />
+            <NumberField label="Dzienny limit leadów" value={form.dailyLeadCap} min={0} max={1000} onChange={(v) => set("dailyLeadCap", v)} />
+            <NumberField label="Cel / dzień" value={form.targetPerDay} min={0} max={1000} onChange={(v) => set("targetPerDay", v)} />
+            <NumberField label="Na ICP / przebieg" value={form.perRunBatch} min={1} max={100} onChange={(v) => set("perRunBatch", v)} />
           </div>
         </div>
 
         {/* Behaviour */}
         <div>
-          <SectionLabel icon={ShieldCheck}>Behaviour (human-in-the-loop)</SectionLabel>
+          <SectionLabel icon={ShieldCheck}>Zachowanie (człowiek w pętli)</SectionLabel>
           <div className="grid gap-3 sm:grid-cols-2">
             <ToggleRow
-              label="Auto-draft inbound replies"
-              hint="AI first reply for inbound leads → Approvals"
+              label="Automatyczne szkice odpowiedzi przychodzących"
+              hint="Pierwsza odpowiedź AI dla leadów przychodzących → Akceptacje"
               checked={form.autoDraftInbound}
               onChange={(v) => set("autoDraftInbound", v)}
             />
             <ToggleRow
-              label="Auto-draft outbound first touch"
-              hint="Used when auto-enroll is off"
+              label="Automatyczne szkice pierwszego kontaktu wychodzącego"
+              hint="Używane, gdy automatyczny zapis do sekwencji jest wyłączony"
               checked={form.autoDraftOutbound}
               onChange={(v) => set("autoDraftOutbound", v)}
             />
             <ToggleRow
-              label="Auto-enroll into cadence"
-              hint="New leads join the default sequence"
+              label="Automatycznie zapisuj do kadencji"
+              hint="Nowe leady dołączają do domyślnej sekwencji"
               checked={form.autoEnroll}
               onChange={(v) => set("autoEnroll", v)}
             />
             <ToggleRow
-              label="Enrich new leads"
-              hint="Derive website, value & rescore"
+              label="Wzbogacaj nowe leady"
+              hint="Ustal stronę WWW, wartość i przelicz scoring"
               checked={form.enrichLeads}
               onChange={(v) => set("enrichLeads", v)}
             />
             <ToggleRow
-              label="Audit lead websites"
-              hint="PageSpeed/heuristic check feeds personalised drafts"
+              label="Audytuj strony leadów"
+              hint="Analiza PageSpeed/heurystyczna zasila spersonalizowane szkice"
               checked={form.auditWebsites}
               onChange={(v) => set("auditWebsites", v)}
             />
             <ToggleRow
-              label="Auto-send approved emails"
-              hint="Full automation: AI drafts are sent without review"
+              label="Automatyczna wysyłka e-maili"
+              hint="Pełna automatyzacja: szkice AI są wysyłane bez przeglądu"
               checked={form.autoSendEmails}
               onChange={(v) => set("autoSendEmails", v)}
             />
           </div>
           {form.autoSendEmails ? (
             <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <NumberField label="Daily email cap" value={form.dailyEmailCap} min={0} max={500} onChange={(v) => set("dailyEmailCap", v)} />
+              <NumberField label="Dzienny limit e-maili" value={form.dailyEmailCap} min={0} max={500} onChange={(v) => set("dailyEmailCap", v)} />
             </div>
           ) : null}
         </div>
@@ -495,7 +503,7 @@ function EnginePanel({
         {/* Quiet hours + channels */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <SectionLabel icon={Clock}>Quiet hours (local)</SectionLabel>
+            <SectionLabel icon={Clock}>Godziny ciszy (czas lokalny)</SectionLabel>
             <div className="flex items-center gap-2">
               <HourSelect
                 value={form.quietHoursStart}
@@ -509,11 +517,11 @@ function EnginePanel({
                 onChange={(v) => set("quietHoursEnd", v)}
               />
             </div>
-            <p className="text-[11px] text-muted-foreground">No fresh outreach is drafted in this window.</p>
+            <p className="text-[11px] text-muted-foreground">W tym oknie nie powstają nowe szkice kontaktu.</p>
           </div>
 
           <div className="space-y-1.5">
-            <SectionLabel icon={Send}>Outreach channels</SectionLabel>
+            <SectionLabel icon={Send}>Kanały kontaktu</SectionLabel>
             <div className="flex flex-wrap gap-2">
               {CHANNEL_OPTIONS.map((ch) => {
                 const on = form.channels.includes(ch);
@@ -523,13 +531,13 @@ function EnginePanel({
                     type="button"
                     onClick={() => toggleChannel(ch)}
                     className={cn(
-                      "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors",
+                      "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
                       on
                         ? "border-primary/30 bg-primary/10 text-primary"
                         : "border-border bg-muted/40 text-muted-foreground hover:bg-muted",
                     )}
                   >
-                    {ch.toLowerCase().replace("_", " ")}
+                    {CHANNEL_LABEL[ch] ?? ch.toLowerCase().replace("_", " ")}
                   </button>
                 );
               })}
@@ -540,7 +548,7 @@ function EnginePanel({
         <div className="flex justify-end">
           <Button onClick={save} disabled={saving}>
             {saving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
-            Save settings
+            Zapisz ustawienia
           </Button>
         </div>
       </CardContent>
@@ -604,7 +612,7 @@ function HourSelect({
       <SelectContent>
         {options.map((o) => (
           <SelectItem key={o} value={o}>
-            {o === "off" ? "Off" : `${o.padStart(2, "0")}:00`}
+            {o === "off" ? "Wył." : `${o.padStart(2, "0")}:00`}
           </SelectItem>
         ))}
       </SelectContent>
@@ -666,46 +674,59 @@ const RUN_STATUS_CLASS: Record<string, string> = {
   ERROR: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
+const RUN_STATUS_LABEL: Record<string, string> = {
+  SUCCESS: "sukces",
+  PARTIAL: "częściowo",
+  SKIPPED: "pominięto",
+  ERROR: "błąd",
+};
+
+const TRIGGER_LABEL: Record<string, string> = {
+  CRON: "harmonogram",
+  MANUAL: "ręcznie",
+  STARTUP: "start aplikacji",
+};
+
 function RunsFeed({ runs }: { runs: RunRow[] }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Radar className="h-4 w-4" /> Activity
+          <Radar className="h-4 w-4" /> Aktywność
         </CardTitle>
       </CardHeader>
       <CardContent>
         {runs.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            No runs yet. Hit “Run now”, or wait for the next scheduled tick.
+            Brak przebiegów. Kliknij „Uruchom teraz” albo poczekaj na następny zaplanowany przebieg.
           </p>
         ) : (
           <ul className="space-y-2.5">
             {runs.map((r) => {
               const counts =
                 r.status === "SKIPPED"
-                  ? r.detail?.reason ?? "skipped"
+                  ? r.detail?.reason ?? "pominięto"
                   : [
-                      r.created ? `+${r.created} leads` : "",
-                      r.deduped ? `${r.deduped} dup` : "",
-                      r.enriched ? `${r.enriched} enriched` : "",
-                      r.drafted ? `${r.drafted} drafted` : "",
-                      r.enrolled ? `${r.enrolled} enrolled` : "",
-                      r.advanced ? `${r.advanced} advanced` : "",
-                      r.hotDetected ? `${r.hotDetected} hot` : "",
+                      r.created ? `+${r.created} leadów` : "",
+                      r.deduped ? `${r.deduped} dupl.` : "",
+                      r.enriched ? `${r.enriched} wzbogaconych` : "",
+                      r.drafted ? `${r.drafted} szkiców` : "",
+                      r.enrolled ? `${r.enrolled} zapisanych` : "",
+                      r.advanced ? `${r.advanced} przesuniętych` : "",
+                      r.hotDetected ? `${r.hotDetected} gorących` : "",
                     ]
                       .filter(Boolean)
-                      .join(" · ") || "nothing new";
+                      .join(" · ") || "nic nowego";
               return (
                 <li key={r.id} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2.5">
                   <div className="flex min-w-0 items-center gap-2.5">
                     <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium", RUN_STATUS_CLASS[r.status] ?? RUN_STATUS_CLASS.SKIPPED)}>
-                      {r.status.toLowerCase()}
+                      {RUN_STATUS_LABEL[r.status] ?? r.status.toLowerCase()}
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-sm">{r.error ? <span className="text-destructive">{r.error}</span> : counts}</p>
                       <p className="text-[11px] text-muted-foreground">
-                        {r.trigger.toLowerCase()} · {formatDistanceToNow(new Date(r.createdAt), { addSuffix: true })}
+                        {TRIGGER_LABEL[r.trigger] ?? r.trigger.toLowerCase()} · {formatDistanceToNow(new Date(r.createdAt), { addSuffix: true, locale: pl })}
                         {r.durationMs ? ` · ${(r.durationMs / 1000).toFixed(1)}s` : ""}
                       </p>
                     </div>
@@ -739,7 +760,7 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
       toast.success(msg);
       onChange();
     } catch {
-      toast.error("Update failed");
+      toast.error("Aktualizacja nie powiodła się");
     } finally {
       setBusy(null);
     }
@@ -755,10 +776,10 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
       });
       if (!res.ok) throw new Error();
       const r: { enrolled: number } = await res.json();
-      toast.success(r.enrolled ? `Enrolled ${r.enrolled} eligible lead(s)` : "No eligible leads to enroll");
+      toast.success(r.enrolled ? `Zapisano do sekwencji ${r.enrolled} kwalifikujących się leadów` : "Brak kwalifikujących się leadów do zapisania");
       onChange();
     } catch {
-      toast.error("Enroll failed");
+      toast.error("Zapis do sekwencji nie powiódł się");
     } finally {
       setBusy(null);
     }
@@ -766,7 +787,7 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
 
   async function create(isDefault: boolean) {
     if (!name.trim()) {
-      toast.error("Give the cadence a name");
+      toast.error("Nadaj kadencji nazwę");
       return;
     }
     setCreating(true);
@@ -777,11 +798,11 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
         body: JSON.stringify({ name: name.trim(), isDefault }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Cadence created with the 4-touch default steps");
+      toast.success("Kadencja utworzona z domyślnymi 4 krokami kontaktu");
       setName("");
       onChange();
     } catch {
-      toast.error("Could not create cadence");
+      toast.error("Nie udało się utworzyć kadencji");
     } finally {
       setCreating(false);
     }
@@ -792,18 +813,18 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <GitBranch className="h-4 w-4" /> Outreach cadences
+            <GitBranch className="h-4 w-4" /> Kadencje kontaktu
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            A cadence is a multi-touch sequence. When a step comes due, the autopilot writes it and queues it in
-            Approvals — you approve, then send. Leads auto-enroll into the <span className="font-medium">default</span> cadence.
+            Kadencja to sekwencja wielu punktów kontaktu. Gdy nadchodzi termin kroku, autopilot pisze treść i ustawia ją
+            w kolejce Akceptacji — Ty zatwierdzasz, potem wysyłasz. Leady są automatycznie zapisywane do kadencji <span className="font-medium">domyślnej</span>.
           </p>
 
           {sequences.length === 0 ? (
             <p className="rounded-md border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
-              No cadences yet. Create one below — it’ll seed the proven 4-touch default.
+              Brak kadencji. Utwórz nową poniżej — zostanie wypełniona sprawdzonym domyślnym schematem 4 kontaktów.
             </p>
           ) : (
             <ul className="space-y-3">
@@ -815,26 +836,26 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
                         <p className="font-medium">{s.name}</p>
                         {s.isDefault ? (
                           <Badge variant="secondary" className="gap-1">
-                            <Star className="h-3 w-3" /> default
+                            <Star className="h-3 w-3" /> domyślna
                           </Badge>
                         ) : null}
-                        <Badge variant={s.active ? "success" : "outline"}>{s.active ? "active" : "paused"}</Badge>
+                        <Badge variant={s.active ? "success" : "outline"}>{s.active ? "aktywna" : "wstrzymana"}</Badge>
                       </div>
                       {s.description ? <p className="mt-0.5 text-xs text-muted-foreground">{s.description}</p> : null}
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        {s.activeEnrollments} active · {s.enrollments} total enrolled
+                        {s.activeEnrollments} aktywnych · {s.enrollments} zapisanych łącznie
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Toggle checked={s.active} disabled={busy === s.id} onChange={(v) => patch(s.id, { active: v }, v ? "Cadence resumed" : "Cadence paused")} />
+                      <Toggle checked={s.active} disabled={busy === s.id} onChange={(v) => patch(s.id, { active: v }, v ? "Kadencja wznowiona" : "Kadencja wstrzymana")} />
                       {!s.isDefault ? (
-                        <Button variant="outline" size="sm" disabled={busy === s.id} onClick={() => patch(s.id, { isDefault: true }, "Set as default cadence")}>
-                          Make default
+                        <Button variant="outline" size="sm" disabled={busy === s.id} onClick={() => patch(s.id, { isDefault: true }, "Ustawiono jako kadencję domyślną")}>
+                          Ustaw jako domyślną
                         </Button>
                       ) : null}
                       <Button variant="outline" size="sm" disabled={busy === s.id} onClick={() => enroll(s.id)}>
                         {busy === s.id ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Users className="mr-1.5 h-3.5 w-3.5" />}
-                        Enroll eligible
+                        Zapisz kwalifikujące się
                       </Button>
                     </div>
                   </div>
@@ -851,7 +872,7 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
 
           <div className="flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center">
             <Input
-              placeholder="New cadence name (e.g. Manufacturers Q3)"
+              placeholder="Nazwa nowej kadencji (np. Producenci Q3)"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="sm:max-w-xs"
@@ -859,11 +880,11 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
             <div className="flex gap-2">
               <Button variant="outline" disabled={creating} onClick={() => create(false)}>
                 {creating ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Plus className="mr-1.5 h-4 w-4" />}
-                Create cadence
+                Utwórz kadencję
               </Button>
               {sequences.every((s) => !s.isDefault) ? (
                 <Button disabled={creating} onClick={() => create(true)}>
-                  Create as default
+                  Utwórz jako domyślną
                 </Button>
               ) : null}
             </div>
@@ -875,14 +896,14 @@ function SequencesPanel({ sequences, onChange }: { sequences: SequenceRow[]; onC
 }
 
 const KIND_LABEL: Partial<Record<ContentKind, string>> = {
-  EMAIL: "Email",
+  EMAIL: "E-mail",
   DM: "DM",
   FOLLOW_UP: "Follow-up",
-  AD: "Ad",
+  AD: "Reklama",
   POST: "Post",
-  OFFER: "Offer",
-  SUBJECT_LINE: "Subject",
-  COLD_CALL_SCRIPT: "Call",
+  OFFER: "Oferta",
+  SUBJECT_LINE: "Temat",
+  COLD_CALL_SCRIPT: "Telefon",
 };
 
 function StepPill({ step }: { step: SequenceStepRow }) {
@@ -890,7 +911,7 @@ function StepPill({ step }: { step: SequenceStepRow }) {
     <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 text-[11px]">
       <span className="font-semibold text-foreground">{step.order}</span>
       <span className="text-muted-foreground">
-        D{step.dayOffset === 0 ? "0" : `+${step.dayOffset}`} · {KIND_LABEL[step.kind] ?? step.kind} · {step.channel.toLowerCase()}
+        D{step.dayOffset === 0 ? "0" : `+${step.dayOffset}`} · {KIND_LABEL[step.kind] ?? step.kind} · {CHANNEL_LABEL[step.channel] ?? step.channel.toLowerCase()}
       </span>
     </span>
   );
@@ -902,12 +923,12 @@ function RecentlyCaptured({ recent }: { recent: RecentLead[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Recently captured</CardTitle>
+        <CardTitle className="text-base">Ostatnio pozyskane</CardTitle>
       </CardHeader>
       <CardContent>
         {recent.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            No auto-captured leads yet. Wire up a form/webhook, or let the autopilot source some.
+            Brak automatycznie pozyskanych leadów. Podepnij formularz/webhook albo pozwól autopilotowi znaleźć kilka.
           </p>
         ) : (
           <ul className="divide-y divide-border">
@@ -918,7 +939,7 @@ function RecentlyCaptured({ recent }: { recent: RecentLead[] }) {
                     {l.name}
                   </Link>
                   <p className="truncate text-xs text-muted-foreground">
-                    {l.companyName ?? "—"} · {formatDistanceToNow(new Date(l.createdAt), { addSuffix: true })}
+                    {l.companyName ?? "—"} · {formatDistanceToNow(new Date(l.createdAt), { addSuffix: true, locale: pl })}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -949,12 +970,12 @@ function CopyButton({ text, label }: { text: string; label?: string }) {
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         } catch {
-          toast.error("Copy failed");
+          toast.error("Kopiowanie nie powiodło się");
         }
       }}
     >
       {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-      {label ?? (copied ? "Copied" : "Copy")}
+      {label ?? (copied ? "Skopiowano" : "Kopiuj")}
     </Button>
   );
 }
@@ -1001,10 +1022,10 @@ function InboundCard({
         body: JSON.stringify({ autoDraft: next }),
       });
       if (!res.ok) throw new Error();
-      toast.success(next ? "AI will draft a first reply for new leads" : "Auto-draft turned off");
+      toast.success(next ? "AI przygotuje szkic pierwszej odpowiedzi dla nowych leadów" : "Automatyczne szkice wyłączone");
     } catch {
       setAutoDraft(!next);
-      toast.error("Could not update setting");
+      toast.error("Nie udało się zaktualizować ustawienia");
     } finally {
       setSaving(false);
     }
@@ -1039,24 +1060,24 @@ function InboundCard({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Inbox className="h-4 w-4" /> Inbound — leads come to you
+          <Inbox className="h-4 w-4" /> Przychodzące — leady przychodzą do Ciebie
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <p className="text-sm text-muted-foreground">
-          Point any website form, landing page or lead-ad at the endpoint below. Leads are
-          deduplicated, scored and assigned automatically.
+          Skieruj dowolny formularz na stronie, landing page lub reklamę leadową na poniższy endpoint. Leady są
+          automatycznie deduplikowane, oceniane i przypisywane.
         </p>
 
         {baseUrlMissing ? (
           <p className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground">
-            Using your current browser origin for the URLs below. Set <code>NEXTAUTH_URL</code> to
-            your production domain so they&apos;re paste-ready everywhere.
+            Poniższe adresy URL korzystają z bieżącego adresu przeglądarki. Ustaw <code>NEXTAUTH_URL</code> na
+            domenę produkcyjną, aby były gotowe do wklejenia wszędzie.
           </p>
         ) : null}
 
         <div className="space-y-1.5">
-          <Label>Capture endpoint</Label>
+          <Label>Endpoint przechwytywania</Label>
           <div className="flex items-center gap-2">
             <Input readOnly value={captureUrl} className="font-mono text-xs" />
             <CopyButton text={captureUrl} />
@@ -1064,7 +1085,7 @@ function InboundCard({
         </div>
 
         <div className="space-y-1.5">
-          <Label>Capture token (header <code>X-Ingest-Token</code>)</Label>
+          <Label>Token przechwytywania (nagłówek <code>X-Ingest-Token</code>)</Label>
           <div className="flex items-center gap-2">
             <Input readOnly value={token} className="font-mono text-xs" />
             <CopyButton text={token} />
@@ -1080,26 +1101,26 @@ function InboundCard({
             className="mt-0.5 h-4 w-4 rounded border-border"
           />
           <span className="text-sm">
-            <span className="font-medium">Auto-draft a first reply with AI</span>
+            <span className="font-medium">Automatyczny szkic pierwszej odpowiedzi z AI</span>
             <span className="block text-xs text-muted-foreground">
-              Each new lead gets an AI-drafted first-touch reply queued in Approvals (never sent
-              automatically).
+              Każdy nowy lead otrzymuje przygotowany przez AI szkic pierwszej odpowiedzi w kolejce Akceptacji
+              (nigdy nie jest wysyłany automatycznie).
             </span>
           </span>
         </label>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <Snippet title="Drop-in HTML form" code={html} />
-          <Snippet title="Server / cURL" code={curl} />
+          <Snippet title="Gotowy formularz HTML" code={html} />
+          <Snippet title="Serwer / cURL" code={curl} />
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Webhook className="h-4 w-4 text-muted-foreground" />
-            <p className="text-sm font-medium">Webhook URLs</p>
+            <p className="text-sm font-medium">Adresy webhooków</p>
           </div>
           <p className="text-xs text-muted-foreground">
-            Paste into Meta Lead Ads, Google Lead Forms, Typeform, Tally, Calendly, Zapier/Make.
+            Wklej w Meta Lead Ads, Google Lead Forms, Typeform, Tally, Calendly, Zapier/Make.
           </p>
           <div className="space-y-2">
             {WEBHOOK_PROVIDERS.map((p) => {
@@ -1148,15 +1169,15 @@ function OutboundCard({
       if (!res.ok) throw new Error();
       const data: { created: number; deduped: number; found: number; live: boolean } = await res.json();
       if (data.created === 0 && data.found === 0) {
-        toast.info("No prospects returned for that ICP.");
+        toast.info("Brak potencjalnych klientów dla tego ICP.");
       } else {
         toast.success(
-          `Added ${data.created} new lead${data.created === 1 ? "" : "s"}${data.deduped ? ` · ${data.deduped} duplicate(s) skipped` : ""}`,
+          `Dodano ${data.created} ${data.created === 1 ? "nowy lead" : "nowych leadów"}${data.deduped ? ` · pominięto duplikaty: ${data.deduped}` : ""}`,
         );
         onDone();
       }
     } catch {
-      toast.error("Discovery failed");
+      toast.error("Wyszukiwanie nie powiodło się");
     } finally {
       setRunning(false);
     }
@@ -1166,34 +1187,34 @@ function OutboundCard({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Radar className="h-4 w-4" /> Outbound — find prospects from your ICP
+          <Radar className="h-4 w-4" /> Wychodzące — znajdź potencjalnych klientów z ICP
           <Badge variant={provider.live ? "success" : "warning"} className="ml-1">
-            {provider.live ? provider.name : "sample data"}
+            {provider.live ? provider.name : "dane przykładowe"}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Pulls fresh prospects matching an ICP, then dedupes, scores and assigns them as new
-          leads. {provider.live ? null : "Currently using sample prospects — "}
+          Pobiera świeżych potencjalnych klientów pasujących do ICP, a następnie deduplikuje ich, ocenia i przypisuje
+          jako nowe leady. {provider.live ? null : "Obecnie używane są przykładowe dane — "}
           {provider.live ? (
-            <>Live source connected.</>
+            <>Połączono ze źródłem na żywo.</>
           ) : (
             <>
-              set <code>APOLLO_API_KEY</code> or <code>HUNTER_API_KEY</code> for real sourcing.
+              ustaw <code>APOLLO_API_KEY</code> lub <code>HUNTER_API_KEY</code>, aby pozyskiwać prawdziwe dane.
             </>
           )}
         </p>
 
         <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end">
           <div className="space-y-1.5">
-            <Label>ICP / Audience</Label>
+            <Label>ICP / grupa docelowa</Label>
             <Select value={audienceId} onValueChange={setAudienceId}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={AUTO}>Primary ICP (auto)</SelectItem>
+                <SelectItem value={AUTO}>Główny ICP (auto)</SelectItem>
                 {audiences.map((au) => (
                   <SelectItem key={au.id} value={au.id}>
                     {au.name}
@@ -1204,7 +1225,7 @@ function OutboundCard({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="d-limit">How many</Label>
+            <Label htmlFor="d-limit">Ile</Label>
             <Input
               id="d-limit"
               type="number"
@@ -1217,14 +1238,14 @@ function OutboundCard({
           </div>
           <Button onClick={run} disabled={running}>
             {running ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Search className="mr-1.5 h-4 w-4" />}
-            Run discovery
+            Uruchom wyszukiwanie
           </Button>
         </div>
 
         {audiences.length === 0 ? (
           <p className="text-xs text-muted-foreground">
-            Tip: create an Audience to sharpen targeting — discovery will still run with sensible
-            defaults.
+            Wskazówka: utwórz grupę docelową, aby doprecyzować targetowanie — wyszukiwanie zadziała też
+            z rozsądnymi ustawieniami domyślnymi.
           </p>
         ) : null}
       </CardContent>

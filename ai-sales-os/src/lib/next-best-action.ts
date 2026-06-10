@@ -37,8 +37,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (lead.outcome === LeadOutcome.WON || lead.stage?.isWon) {
     return {
       type: "NURTURE",
-      label: "Ask for a referral / upsell",
-      rationale: "Closed-won — best moment to request a referral or introduce a higher tier.",
+      label: "Poproś o polecenie / zaproponuj upsell",
+      rationale: "Transakcja wygrana — to najlepszy moment, by poprosić o polecenie lub zaproponować wyższy pakiet.",
       urgency: "low",
       draftKind: "EMAIL",
     };
@@ -47,8 +47,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (lead.outcome === LeadOutcome.LOST || lead.stage?.isLost) {
     return {
       type: "RE_ENGAGE",
-      label: "Schedule a re-engagement in 60 days",
-      rationale: "Lost deal — park it and re-engage later with a new angle.",
+      label: "Zaplanuj powrót do kontaktu za 60 dni",
+      rationale: "Transakcja przegrana — odłóż ją i wróć później z nowym podejściem.",
       urgency: "low",
     };
   }
@@ -56,8 +56,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (!lead.lastContactedAt) {
     return {
       type: "FIRST_TOUCH",
-      label: "Send first outreach",
-      rationale: "No contact recorded yet. Open the conversation while the lead is fresh.",
+      label: "Wyślij pierwszą wiadomość",
+      rationale: "Brak odnotowanego kontaktu. Rozpocznij rozmowę, póki lead jest świeży.",
       urgency: lead.score >= 60 ? "high" : "medium",
       draftKind: "EMAIL",
     };
@@ -66,8 +66,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (stage.includes("proposal") || stage.includes("negotiation")) {
     return {
       type: "CLOSE",
-      label: "Follow up to close",
-      rationale: "Late-stage deal — drive to a decision before momentum fades.",
+      label: "Domknij follow-upem",
+      rationale: "Końcowy etap transakcji — doprowadź do decyzji, zanim impet osłabnie.",
       urgency: "high",
       draftKind: "FOLLOW_UP",
     };
@@ -76,8 +76,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (stage.includes("qualified")) {
     return {
       type: "SEND_PROPOSAL",
-      label: "Send a tailored offer",
-      rationale: "Lead is qualified — convert interest into a concrete proposal.",
+      label: "Wyślij dopasowaną ofertę",
+      rationale: "Lead jest zakwalifikowany — zamień zainteresowanie w konkretną propozycję.",
       urgency: "high",
       draftKind: "OFFER",
     };
@@ -86,8 +86,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (stage.includes("contacted") && daysSinceContact >= 3) {
     return {
       type: "FOLLOW_UP",
-      label: "Follow up",
-      rationale: `No reply in ${Math.floor(daysSinceContact)} days. A nudge here lifts reply rates.`,
+      label: "Zrób follow-up",
+      rationale: `Brak odpowiedzi od ${Math.floor(daysSinceContact)} dni. Delikatne przypomnienie zwiększa szansę na odpowiedź.`,
       urgency: daysSinceContact >= 7 ? "high" : "medium",
       draftKind: "FOLLOW_UP",
     };
@@ -96,8 +96,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (stage.includes("new") || daysSinceContact < 3) {
     return {
       type: "QUALIFY",
-      label: "Qualify the lead",
-      rationale: "Confirm fit, budget and timing before investing more effort.",
+      label: "Zakwalifikuj leada",
+      rationale: "Potwierdź dopasowanie, budżet i termin, zanim zainwestujesz więcej czasu.",
       urgency: "medium",
       draftKind: "DM",
     };
@@ -106,8 +106,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
   if (daysSinceContact >= 14) {
     return {
       type: "RE_ENGAGE",
-      label: "Re-engage",
-      rationale: `Quiet for ${Math.floor(daysSinceContact)} days — revive with fresh value.`,
+      label: "Odnów kontakt",
+      rationale: `Cisza od ${Math.floor(daysSinceContact)} dni — ożyw relację, dając świeżą wartość.`,
       urgency: "medium",
       draftKind: "FOLLOW_UP",
     };
@@ -115,8 +115,8 @@ export function nextBestAction(lead: LeadLike): NextAction {
 
   return {
     type: "NURTURE",
-    label: "Keep nurturing",
-    rationale: "On track — stay top of mind with relevant touches.",
+    label: "Podtrzymuj relację",
+    rationale: "Wszystko idzie zgodnie z planem — pozostań w pamięci dzięki trafnym kontaktom.",
     urgency: "low",
     draftKind: "FOLLOW_UP",
   };

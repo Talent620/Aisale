@@ -138,8 +138,8 @@ export async function importBusinesses(args: {
       data: {
         hasWebsite: c.hasWebsite,
         nextActionNote: c.hasWebsite
-          ? "Audit the website, then call with concrete findings"
-          : "Call — they have no website yet",
+          ? "Zaudytuj stronę, potem dzwoń z konkretami"
+          : "Zadzwoń — nie mają jeszcze strony WWW",
       },
     });
 

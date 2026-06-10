@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { pl } from "date-fns/locale";
 import { Users, Flame, Wallet, TrendingUp, Activity } from "lucide-react";
 import { getAuth } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
@@ -24,10 +25,10 @@ import type { LeadSource } from "@prisma/client";
 export const dynamic = "force-dynamic";
 
 const SERIES_META: Record<string, { title: string; color: string; currency?: boolean }> = {
-  "pipeline.value": { title: "Pipeline value", color: CHART.primary, currency: true },
-  "revenue.won": { title: "Revenue won", color: CHART.sand, currency: true },
-  "leads.new": { title: "New leads", color: CHART.primary },
-  "reply.rate": { title: "Reply rate (%)", color: CHART.sand },
+  "pipeline.value": { title: "Wartość lejka", color: CHART.primary, currency: true },
+  "revenue.won": { title: "Przychód wygrany", color: CHART.sand, currency: true },
+  "leads.new": { title: "Nowe leady", color: CHART.primary },
+  "reply.rate": { title: "Wskaźnik odpowiedzi (%)", color: CHART.sand },
 };
 
 export default async function AnalyticsPage() {
@@ -114,25 +115,25 @@ export default async function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Analytics"
-        description="How your pipeline, sources and revenue are trending."
+        title="Analityka"
+        description="Jak zmieniają się Twój lejek, źródła i przychody."
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Total leads" value={snapshot.totalLeads} icon={Users} />
+        <KpiCard label="Wszystkie leady" value={snapshot.totalLeads} icon={Users} />
         <KpiCard
-          label="Hot leads"
+          label="Gorące leady"
           value={snapshot.hotLeads}
           icon={Flame}
           accent={snapshot.hotLeads > 0 ? "warning" : "default"}
         />
         <KpiCard
-          label="Pipeline value"
+          label="Wartość lejka"
           value={formatCurrency(snapshot.pipelineValue, snapshot.currency)}
           icon={Wallet}
         />
         <KpiCard
-          label="Reply rate"
+          label="Wskaźnik odpowiedzi"
           value={`${snapshot.replyRate}%`}
           icon={TrendingUp}
           accent="success"
@@ -161,14 +162,14 @@ export default async function AnalyticsPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">Funnel distribution</CardTitle>
+            <CardTitle className="text-base">Rozkład lejka</CardTitle>
           </CardHeader>
           <CardContent>
             {funnel.some((f) => f.count > 0) ? (
               <FunnelBar data={funnel} />
             ) : (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                No leads in the funnel yet.
+                Brak leadów w lejku.
               </p>
             )}
           </CardContent>
@@ -176,13 +177,13 @@ export default async function AnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Lead quality</CardTitle>
+            <CardTitle className="text-base">Jakość leadów</CardTitle>
           </CardHeader>
           <CardContent>
             {gradeData.some((g) => g.count > 0) ? (
               <GradeDonut data={gradeData} />
             ) : (
-              <p className="py-8 text-center text-sm text-muted-foreground">No data yet.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">Brak danych.</p>
             )}
           </CardContent>
         </Card>
@@ -193,13 +194,13 @@ export default async function AnalyticsPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Lead sources</CardTitle>
+            <CardTitle className="text-base">Źródła leadów</CardTitle>
           </CardHeader>
           <CardContent>
             {sources.length > 0 ? (
               <SourceBar data={sources} />
             ) : (
-              <p className="py-8 text-center text-sm text-muted-foreground">No data yet.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">Brak danych.</p>
             )}
           </CardContent>
         </Card>
@@ -208,15 +209,15 @@ export default async function AnalyticsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Activity className="h-4 w-4 text-muted-foreground" />
-              Recent AI activity
+              Ostatnia aktywność AI
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {decisions.length === 0 ? (
               <div className="p-6">
                 <EmptyState
-                  title="No AI activity yet"
-                  description="Generated drafts and AI decisions will be logged here for full auditability."
+                  title="Brak aktywności AI"
+                  description="Wygenerowane szkice i decyzje AI będą tu rejestrowane, by zapewnić pełną audytowalność."
                 />
               </div>
             ) : (
@@ -237,7 +238,7 @@ export default async function AnalyticsPage() {
                       <p className="truncate text-xs text-muted-foreground">
                         {d.provider}
                         {d.model ? ` · ${d.model}` : ""} ·{" "}
-                        {formatDistanceToNow(d.createdAt, { addSuffix: true })}
+                        {formatDistanceToNow(d.createdAt, { addSuffix: true, locale: pl })}
                       </p>
                     </div>
                     <span
@@ -249,7 +250,11 @@ export default async function AnalyticsPage() {
                             : "text-xs font-medium text-destructive"
                       }
                     >
-                      {d.status.toLowerCase()}
+                      {d.status === "SUCCESS"
+                        ? "sukces"
+                        : d.status === "FALLBACK"
+                          ? "fallback"
+                          : "błąd"}
                     </span>
                   </li>
                 ))}

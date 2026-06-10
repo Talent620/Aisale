@@ -46,7 +46,7 @@ export function ApiAccessCard({
 
   async function createKey() {
     if (name.trim().length < 2) {
-      toast.error("Name the key (e.g. 'Zapier')");
+      toast.error("Nazwij klucz (np. Zapier)");
       return;
     }
     setBusy(true);
@@ -62,7 +62,7 @@ export function ApiAccessCard({
       setName("");
       router.refresh();
     } catch (e) {
-      toast.error(e instanceof Error && e.message ? e.message : "Could not create the key");
+      toast.error(e instanceof Error && e.message ? e.message : "Nie udało się utworzyć klucza");
     } finally {
       setBusy(false);
     }
@@ -73,10 +73,10 @@ export function ApiAccessCard({
     try {
       const res = await fetch(`/api/api-keys/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
-      toast.success("Key revoked");
+      toast.success("Klucz unieważniony");
       router.refresh();
     } catch {
-      toast.error("Could not revoke the key");
+      toast.error("Nie udało się unieważnić klucza");
     } finally {
       setBusy(false);
     }
@@ -84,9 +84,9 @@ export function ApiAccessCard({
 
   const urls = [
     { tag: "rest", label: "REST API", value: `${appUrl}/api/v1/leads` },
-    { tag: "ics", label: "Calendar feed (ICS)", value: `${appUrl}/api/calendar/ics?token=${inboundToken}` },
+    { tag: "ics", label: "Kalendarz (ICS)", value: `${appUrl}/api/calendar/ics?token=${inboundToken}` },
     ...(landingSlug
-      ? [{ tag: "landing", label: "Public landing page", value: `${appUrl}/l/${landingSlug}` }]
+      ? [{ tag: "landing", label: "Publiczny landing", value: `${appUrl}/l/${landingSlug}` }]
       : []),
   ];
 
@@ -94,7 +94,7 @@ export function ApiAccessCard({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <KeyRound className="h-4 w-4" /> API access &amp; integrations
+          <KeyRound className="h-4 w-4" /> Dostęp API i integracje
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -109,14 +109,14 @@ export function ApiAccessCard({
             </div>
           ))}
           <p className="text-xs text-muted-foreground">
-            REST: send <code>Authorization: Bearer &lt;key&gt;</code> · GET lists leads, POST creates
-            them. ICS: subscribe in Google&nbsp;Calendar/Outlook (tasks + scheduled calls).
+            REST: nagłówek <code>Authorization: Bearer &lt;klucz&gt;</code> · GET listuje leady, POST tworzy.
+            ICS: subskrybuj w Google&nbsp;Calendar/Outlook (zadania + zaplanowane telefony).
           </p>
         </div>
 
         {freshKey ? (
           <div className="space-y-2 rounded-md border border-success/30 bg-success/5 p-3">
-            <p className="text-sm font-medium text-success">Key created — copy it now, it won&apos;t be shown again:</p>
+            <p className="text-sm font-medium text-success">Klucz utworzony — skopiuj TERAZ, nie pokaże się ponownie:</p>
             <div className="flex items-center gap-2">
               <code className="min-w-0 flex-1 truncate rounded bg-background px-2 py-1.5 text-xs">{freshKey}</code>
               <Button variant="outline" size="sm" onClick={() => copy(freshKey, "fresh")}>
@@ -132,11 +132,11 @@ export function ApiAccessCard({
               <div className="min-w-0">
                 <p className="flex items-center gap-2 text-sm font-medium">
                   {k.name}
-                  {k.revokedAt ? <Badge variant="secondary">revoked</Badge> : null}
+                  {k.revokedAt ? <Badge variant="secondary">unieważniony</Badge> : null}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {k.prefix}… · created {format(new Date(k.createdAt), "d MMM yyyy")}
-                  {k.lastUsedAt ? ` · last used ${format(new Date(k.lastUsedAt), "d MMM yyyy")}` : " · never used"}
+                  {k.prefix}… · utworzony {format(new Date(k.createdAt), "d MMM yyyy")}
+                  {k.lastUsedAt ? ` · ostatnio użyty ${format(new Date(k.lastUsedAt), "d MMM yyyy")}` : " · nieużywany"}
                 </p>
               </div>
               {!k.revokedAt ? (
@@ -150,12 +150,12 @@ export function ApiAccessCard({
 
         <div className="flex gap-2">
           <Input
-            placeholder="Key name (e.g. Zapier, my script)"
+            placeholder="Nazwa klucza (np. Zapier, mój skrypt)"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <Button onClick={createKey} disabled={busy}>
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create key
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Utwórz klucz
           </Button>
         </div>
       </CardContent>

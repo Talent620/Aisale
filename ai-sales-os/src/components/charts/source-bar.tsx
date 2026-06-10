@@ -23,7 +23,7 @@ export function SourceBar({ data }: { data: { source: string; count: number }[] 
         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: CHART.muted }} axisLine={false} tickLine={false} />
         <YAxis type="category" dataKey="label" width={104} tick={{ fontSize: 12, fill: CHART.ink }} axisLine={false} tickLine={false} />
         <Tooltip cursor={{ fill: "rgba(0,0,0,0.04)" }} contentStyle={{ borderRadius: 8, border: `1px solid ${CHART.grid}`, fontSize: 12 }} />
-        <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={18} fill={CHART.sand} />
+        <Bar dataKey="count" name="Liczba" radius={[0, 6, 6, 0]} barSize={18} fill={CHART.sand} />
       </BarChart>
     </ResponsiveContainer>
   );

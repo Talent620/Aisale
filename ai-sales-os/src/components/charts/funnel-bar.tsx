@@ -28,7 +28,7 @@ export function FunnelBar({ data }: { data: { stage: string; count: number; colo
           cursor={{ fill: "rgba(0,0,0,0.04)" }}
           contentStyle={{ borderRadius: 8, border: `1px solid ${CHART.grid}`, fontSize: 12 }}
         />
-        <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={20}>
+        <Bar dataKey="count" name="Liczba" radius={[0, 6, 6, 0]} barSize={20}>
           {data.map((d, i) => (
             <Cell key={i} fill={d.color || CHART.primary} />
           ))}

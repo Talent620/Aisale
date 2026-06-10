@@ -9,8 +9,8 @@ function subjectFor(body: string, companyName: string | null, leadCompany: strin
     return firstLine.replace(/^(hi|hello|dear|hey|cześć|dzień dobry)[^a-z0-9]*/i, "").trim() || firstLine;
   }
   return leadCompany
-    ? `Quick idea for ${leadCompany}`
-    : `Quick idea from ${companyName ?? "us"}`;
+    ? `Szybki pomysł dla ${leadCompany}`
+    : `Szybki pomysł od ${companyName ?? "nas"}`;
 }
 
 export interface SendDraftResult extends SendEmailResult {
@@ -55,7 +55,7 @@ export async function sendDraftToLead(args: {
       leadId: msg.lead.id,
       userId: args.userId ?? null,
       type: "SYSTEM",
-      title: "Email delivery failed",
+      title: "Wysyłka e-maila nie powiodła się",
       body: result.error ?? null,
     });
     return result;
@@ -85,7 +85,7 @@ export async function sendDraftToLead(args: {
       leadId: msg.lead.id,
       userId: args.userId ?? null,
       type: "EMAIL",
-      title: `${args.auto ? "Auto-sent" : "Sent"} email · ${subject}`,
+      title: `${args.auto ? "Wysłano automatycznie" : "Wysłano"} e-mail · ${subject}`,
       body: msg.body,
       meta: { provider: result.provider, simulated: result.simulated, externalId: result.id ?? null },
     }),

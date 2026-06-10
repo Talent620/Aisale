@@ -71,23 +71,23 @@ async function pagespeedAudit(url: string): Promise<AuditMetrics | null> {
     const issues: string[] = [];
     const opportunities: string[] = [];
     if (lcp != null && lcp > 4000) {
-      issues.push(`Page takes ${(lcp / 1000).toFixed(1)}s to load on mobile`);
-      opportunities.push("Speed optimisation — visitors leave after ~3s");
+      issues.push(`Strona ładuje się ${(lcp / 1000).toFixed(1)} s na telefonie`);
+      opportunities.push("Optymalizacja szybkości — ludzie odpadają po ~3 s");
     }
     if (performance != null && performance < 50) {
-      issues.push(`Mobile performance score only ${performance}/100`);
+      issues.push(`Wynik wydajności mobile tylko ${performance}/100`);
     }
     if (!https) {
-      issues.push("No HTTPS — browsers flag the site as 'Not secure'");
-      opportunities.push("SSL certificate + secure redesign");
+      issues.push("Brak HTTPS — przeglądarki oznaczają stronę jako „Niezabezpieczona”");
+      opportunities.push("Certyfikat SSL + bezpieczna przebudowa");
     }
     if (!viewportOk) {
-      issues.push("Not mobile-friendly (no responsive viewport)");
-      opportunities.push("Responsive redesign — most local searches are mobile");
+      issues.push("Strona nie działa dobrze na telefonach (brak responsywności)");
+      opportunities.push("Responsywna przebudowa — większość lokalnych wyszukiwań to telefon");
     }
     if (seo != null && seo < 70) {
-      issues.push(`Weak SEO basics (${seo}/100) — hard to find on Google`);
-      opportunities.push("On-page SEO as part of a new site");
+      issues.push(`Słabe podstawy SEO (${seo}/100) — trudno ich znaleźć w Google`);
+      opportunities.push("SEO on-page w ramach nowej strony");
     }
 
     return {
@@ -144,23 +144,23 @@ async function heuristicAudit(url: string): Promise<AuditMetrics> {
     seo = [hasTitle, hasDescription, hasH1].filter(Boolean).length * 33;
 
     if (loadTimeMs > 3000) {
-      issues.push(`Server responds in ${(loadTimeMs / 1000).toFixed(1)}s — far too slow`);
-      opportunities.push("Modern fast hosting + rebuilt site");
+      issues.push(`Serwer odpowiada w ${(loadTimeMs / 1000).toFixed(1)} s — zdecydowanie za wolno`);
+      opportunities.push("Nowoczesny szybki hosting + przebudowana strona");
     }
     if (!mobileFriendly) {
-      issues.push("Not mobile-friendly (no responsive viewport)");
-      opportunities.push("Responsive redesign — most local searches are mobile");
+      issues.push("Strona nie działa dobrze na telefonach (brak responsywności)");
+      opportunities.push("Responsywna przebudowa — większość lokalnych wyszukiwań to telefon");
     }
-    if (!hasDescription) issues.push("Missing meta description — weak Google snippet");
-    if (!hasTitle) issues.push("Missing page title");
+    if (!hasDescription) issues.push("Brak meta description — słaby opis w wynikach Google");
+    if (!hasTitle) issues.push("Brak tytułu strony");
   } catch {
-    issues.push("Website unreachable or extremely slow");
-    opportunities.push("The site is effectively down — easiest pitch there is");
+    issues.push("Strona niedostępna albo ekstremalnie wolna");
+    opportunities.push("Strona praktycznie nie działa — łatwiejszego argumentu nie będzie");
   }
 
   if (!https) {
-    issues.push("No HTTPS — browsers flag the site as 'Not secure'");
-    opportunities.push("SSL certificate + secure redesign");
+    issues.push("Brak HTTPS — przeglądarki oznaczają stronę jako „Niezabezpieczona”");
+    opportunities.push("Certyfikat SSL + bezpieczna przebudowa");
   }
 
   // Rough performance estimate from response time alone.
@@ -195,9 +195,9 @@ function overallScore(m: AuditMetrics): number {
 
 function summarize(url: string, m: AuditMetrics, overall: number): string {
   const head = !m.reachable
-    ? `The website ${url} is currently unreachable.`
-    : `Website health ${overall}/100${m.loadTimeMs ? ` · responds in ${(m.loadTimeMs / 1000).toFixed(1)}s` : ""}${m.https ? "" : " · NO HTTPS"}${m.mobileFriendly === false ? " · not mobile-friendly" : ""}.`;
-  const body = m.issues.length ? ` Key problems: ${m.issues.join("; ")}.` : " No major problems detected.";
+    ? `Strona ${url} jest obecnie niedostępna.`
+    : `Zdrowie strony ${overall}/100${m.loadTimeMs ? ` · odpowiada w ${(m.loadTimeMs / 1000).toFixed(1)} s` : ""}${m.https ? "" : " · BRAK HTTPS"}${m.mobileFriendly === false ? " · nie działa na mobile" : ""}.`;
+  const body = m.issues.length ? ` Główne problemy: ${m.issues.join("; ")}.` : " Nie wykryto poważnych problemów.";
   return head + body;
 }
 
@@ -268,7 +268,7 @@ export async function auditLead(args: {
     companyId: args.companyId,
     leadId: lead.id,
     type: "SYSTEM",
-    title: `Website audited — ${overall}/100 (${metrics.provider})`,
+    title: `Strona zaudytowana — ${overall}/100 (${metrics.provider})`,
     body: summary,
     meta: { auditId: audit.id, overall, weak },
   });

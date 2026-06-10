@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDistanceToNow, isPast } from "date-fns";
+import { pl } from "date-fns/locale";
 import {
   Users,
   Flame,
@@ -86,21 +87,21 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">Kokpit</h1>
           <p className="text-sm text-muted-foreground">
-            Your acquisition system at a glance — what&apos;s hot, what&apos;s due, what needs a decision.
+            Twój system pozyskiwania w pigułce — co gorące, co na dziś, co czeka na decyzję.
           </p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm">
             <Link href="/copilot">
               <Sparkles className="h-4 w-4" />
-              Ask Copilot
+              Zapytaj Copilota
             </Link>
           </Button>
           <Button asChild size="sm">
             <Link href="/leads">
-              View leads
+              Zobacz leady
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -109,7 +110,7 @@ export default async function DashboardPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Total leads" value={snapshot.totalLeads} icon={Users} hint={`${snapshot.hotLeads} hot right now`} />
+        <KpiCard label="Wszystkie leady" value={snapshot.totalLeads} icon={Users} hint={`gorących teraz: ${snapshot.hotLeads}`} />
         <KpiCard
           label="Hot leads"
           value={snapshot.hotLeads}
@@ -124,7 +125,7 @@ export default async function DashboardPage() {
           accent={snapshot.overdueTasks > 0 ? "warning" : "default"}
           hint={snapshot.overdueTasks > 0 ? `${snapshot.overdueTasks} overdue` : "All on time"}
         />
-        <KpiCard label="Pipeline value" value={fmt(snapshot.pipelineValue)} icon={Wallet} hint={`Won: ${fmt(snapshot.wonValue)}`} />
+        <KpiCard label="Wartość lejka" value={fmt(snapshot.pipelineValue)} icon={Wallet} hint={`Wygrane: ${fmt(snapshot.wonValue)}`} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -132,7 +133,7 @@ export default async function DashboardPage() {
         <div className="space-y-4 lg:col-span-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Pipeline funnel</CardTitle>
+              <CardTitle>Lejek sprzedażowy</CardTitle>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/pipeline">
                   Open pipeline <ArrowRight className="h-4 w-4" />
@@ -150,7 +151,7 @@ export default async function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Leads by source</CardTitle>
+              <CardTitle>Leady wg źródła</CardTitle>
             </CardHeader>
             <CardContent>
               {sources.length > 0 ? (
@@ -167,16 +168,16 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <PhoneCall className="h-4 w-4 text-primary" /> Call list
+                <PhoneCall className="h-4 w-4 text-primary" /> Lista telefonów
               </CardTitle>
               <Button asChild variant="ghost" size="sm">
-                <Link href="/calls">Queue</Link>
+                <Link href="/calls">Kolejka</Link>
               </Button>
             </CardHeader>
             <CardContent className="space-y-2">
               {callQueue.length === 0 ? (
                 <p className="py-4 text-center text-sm text-muted-foreground">
-                  No one waiting for a call.
+                  Nikt nie czeka na telefon.
                 </p>
               ) : (
                 callQueue.map((l) => (
@@ -187,17 +188,17 @@ export default async function DashboardPage() {
                     <Link href={`/leads/${l.id}`} className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium hover:underline">{l.name}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {l.hasWebsite === false ? "No website · " : ""}
+                        {l.hasWebsite === false ? "brak strony · " : ""}
                         {l.callStatus === "CALLBACK" && l.nextCallAt
-                          ? `callback ${formatDistanceToNow(new Date(l.nextCallAt), { addSuffix: true })}`
+                          ? `oddzwonienie ${formatDistanceToNow(new Date(l.nextCallAt), { addSuffix: true, locale: pl })}`
                           : l.callStatus === "NOT_CALLED"
-                            ? "never called"
-                            : "retry"}
+                            ? "nigdy nie dzwoniono"
+                            : "ponowić"}
                       </p>
                     </Link>
                     <Button asChild variant="outline" size="sm">
                       <a href={`tel:${l.phone!.replace(/\s+/g, "")}`}>
-                        <PhoneCall className="h-3.5 w-3.5" /> Call
+                        <PhoneCall className="h-3.5 w-3.5" /> Dzwoń
                       </a>
                     </Button>
                   </div>
@@ -209,12 +210,12 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Flame className="h-4 w-4 text-success" /> Hot leads
+                <Flame className="h-4 w-4 text-success" /> Gorące leady
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {hotLeads.length === 0 ? (
-                <p className="py-4 text-center text-sm text-muted-foreground">No hot leads yet.</p>
+                <p className="py-4 text-center text-sm text-muted-foreground">Brak gorących leadów.</p>
               ) : (
                 hotLeads.map((lead) => {
                   const nba = nextBestAction(lead);
@@ -239,15 +240,15 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <ListChecks className="h-4 w-4" /> Today &amp; overdue
+                <ListChecks className="h-4 w-4" /> Na dziś i zaległe
               </CardTitle>
               <Button asChild variant="ghost" size="sm">
-                <Link href="/tasks">All</Link>
+                <Link href="/tasks">Wszystkie</Link>
               </Button>
             </CardHeader>
             <CardContent className="space-y-2">
               {tasks.length === 0 ? (
-                <p className="py-4 text-center text-sm text-muted-foreground">Nothing on your list.</p>
+                <p className="py-4 text-center text-sm text-muted-foreground">Nic na liście.</p>
               ) : (
                 tasks.map((t) => {
                   const overdue = t.dueDate ? isPast(new Date(t.dueDate)) : false;
@@ -256,9 +257,9 @@ export default async function DashboardPage() {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{t.title}</p>
                         <p className="truncate text-xs text-muted-foreground">
-                          {t.lead ? t.lead.name : "General"}
+                          {t.lead ? t.lead.name : "Ogólne"}
                           {t.dueDate
-                            ? ` · ${overdue ? "overdue " : "due "}${formatDistanceToNow(new Date(t.dueDate), { addSuffix: true })}`
+                            ? ` · ${overdue ? "zaległe " : "termin "}${formatDistanceToNow(new Date(t.dueDate), { addSuffix: true, locale: pl })}`
                             : ""}
                         </p>
                       </div>
@@ -273,15 +274,15 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4" /> Approvals
+                <BadgeCheck className="h-4 w-4" /> Akceptacje
               </CardTitle>
               <Button asChild variant="ghost" size="sm">
-                <Link href="/approvals">Review</Link>
+                <Link href="/approvals">Przejrzyj</Link>
               </Button>
             </CardHeader>
             <CardContent>
               {approvals.length === 0 ? (
-                <p className="py-4 text-center text-sm text-muted-foreground">No AI drafts waiting.</p>
+                <p className="py-4 text-center text-sm text-muted-foreground">Żadne drafty AI nie czekają.</p>
               ) : (
                 <ul className="space-y-2">
                   {approvals.map((ap) => (
@@ -301,12 +302,12 @@ export default async function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Activity className="h-4 w-4" /> Recent activity
+            <Activity className="h-4 w-4" /> Ostatnia aktywność
           </CardTitle>
         </CardHeader>
         <CardContent>
           {activity.length === 0 ? (
-            <EmptyState icon={Activity} title="No activity yet" description="As you work leads, everything shows up here." />
+            <EmptyState icon={Activity} title="Brak aktywności" description="Gdy zaczniesz pracować z leadami, wszystko pojawi się tutaj." />
           ) : (
             <ul className="divide-y divide-border">
               {activity.map((ev) => (
@@ -320,7 +321,7 @@ export default async function DashboardPage() {
                     ) : null}
                   </div>
                   <span className="shrink-0 text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(ev.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(ev.createdAt), { addSuffix: true, locale: pl })}
                   </span>
                 </li>
               ))}

@@ -66,11 +66,11 @@ export const mockBusinessProvider: BusinessProvider = {
       const reviews = (seed >> 5) % 120;
 
       const signals: string[] = [];
-      if (!website) signals.push("No website — needs one");
-      else if (isSocialOnly) signals.push("Only a social profile, no real site");
-      else if (weakSite) signals.push("Outdated website (no HTTPS / legacy host)");
-      if (reviews < 10) signals.push("Few Google reviews");
-      if (rating < 4) signals.push(`Rating only ${rating.toFixed(1)}★`);
+      if (!website) signals.push("Brak strony WWW — potrzebują jej");
+      else if (isSocialOnly) signals.push("Tylko profil społecznościowy, brak prawdziwej strony");
+      else if (weakSite) signals.push("Przestarzała strona (brak HTTPS / stary hosting)");
+      if (reviews < 10) signals.push("Mało opinii w Google");
+      if (rating < 4) signals.push(`Ocena tylko ${rating.toFixed(1)}★`);
 
       out.push({
         name,

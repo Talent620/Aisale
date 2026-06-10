@@ -35,7 +35,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" description="Manage your workspace and AI behaviour." />
+      <PageHeader title="Ustawienia" description="Zarządzaj swoim workspace i zachowaniem AI." />
       <SettingsClient
         company={{
           name: company.name,

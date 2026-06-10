@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format, isPast, isToday } from "date-fns";
+import { pl } from "date-fns/locale";
 import { toast } from "sonner";
 import { Plus, ListChecks, Loader2, Check, Calendar } from "lucide-react";
 import { Priority, TaskStatus } from "@prisma/client";
@@ -99,7 +100,7 @@ export function TasksClient() {
       );
       router.refresh();
     } catch {
-      toast.error("Could not update task");
+      toast.error("Nie udało się zaktualizować zadania");
     } finally {
       setBusy(null);
     }
@@ -107,17 +108,17 @@ export function TasksClient() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Tasks" description="Stay on top of follow-ups and to-dos.">
+      <PageHeader title="Zadania" description="Trzymaj rękę na pulsie follow-upów i spraw do zrobienia.">
         <CreateTaskDialog onCreated={load} />
       </PageHeader>
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
         <TabsList>
-          <TabsTrigger value="OPEN">Open</TabsTrigger>
-          <TabsTrigger value="TODO">To do</TabsTrigger>
-          <TabsTrigger value="IN_PROGRESS">In progress</TabsTrigger>
-          <TabsTrigger value="DONE">Done</TabsTrigger>
-          <TabsTrigger value="ALL">All</TabsTrigger>
+          <TabsTrigger value="OPEN">Otwarte</TabsTrigger>
+          <TabsTrigger value="TODO">Do zrobienia</TabsTrigger>
+          <TabsTrigger value="IN_PROGRESS">W toku</TabsTrigger>
+          <TabsTrigger value="DONE">Zrobione</TabsTrigger>
+          <TabsTrigger value="ALL">Wszystkie</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -132,8 +133,8 @@ export function TasksClient() {
       ) : visible.length === 0 ? (
         <EmptyState
           icon={ListChecks}
-          title="Nothing here"
-          description="No tasks match this filter. Create one to get started."
+          title="Nic tu nie ma"
+          description="Żadne zadania nie pasują do tego filtra. Utwórz pierwsze, aby zacząć."
         />
       ) : (
         <Card>
@@ -148,7 +149,7 @@ export function TasksClient() {
                     type="button"
                     onClick={() => toggleDone(task)}
                     disabled={busy === task.id}
-                    aria-label={done ? "Mark as not done" : "Mark as done"}
+                    aria-label={done ? "Oznacz jako niezrobione" : "Oznacz jako zrobione"}
                     className={cn(
                       "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors",
                       done
@@ -201,8 +202,8 @@ export function TasksClient() {
                           )}
                         >
                           <Calendar className="h-3 w-3" />
-                          {format(due, "MMM d")}
-                          {overdue ? " · overdue" : ""}
+                          {format(due, "d MMM", { locale: pl })}
+                          {overdue ? " · zaległe" : ""}
                         </span>
                       ) : null}
                     </div>
@@ -232,7 +233,7 @@ function CreateTaskDialog({ onCreated }: { onCreated: () => void }) {
 
   async function submit() {
     if (title.trim().length < 2) {
-      toast.error("Please enter a task title");
+      toast.error("Podaj tytuł zadania");
       return;
     }
     setSaving(true);
@@ -248,7 +249,7 @@ function CreateTaskDialog({ onCreated }: { onCreated: () => void }) {
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Task created");
+      toast.success("Zadanie utworzone");
       setTitle("");
       setDescription("");
       setPriority("MEDIUM");
@@ -256,7 +257,7 @@ function CreateTaskDialog({ onCreated }: { onCreated: () => void }) {
       setOpen(false);
       onCreated();
     } catch {
-      toast.error("Could not create task");
+      toast.error("Nie udało się utworzyć zadania");
     } finally {
       setSaving(false);
     }
@@ -267,36 +268,36 @@ function CreateTaskDialog({ onCreated }: { onCreated: () => void }) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-1.5 h-4 w-4" />
-          New task
+          Nowe zadanie
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New task</DialogTitle>
+          <DialogTitle>Nowe zadanie</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="task-title">Title</Label>
+            <Label htmlFor="task-title">Tytuł</Label>
             <Input
               id="task-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Follow up with…"
+              placeholder="Follow-up z…"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="task-desc">Description</Label>
+            <Label htmlFor="task-desc">Opis</Label>
             <Textarea
               id="task-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional details"
+              placeholder="Dodatkowe szczegóły (opcjonalnie)"
               rows={3}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Priority</Label>
+              <Label>Priorytet</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -311,7 +312,7 @@ function CreateTaskDialog({ onCreated }: { onCreated: () => void }) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="task-due">Due date</Label>
+              <Label htmlFor="task-due">Termin</Label>
               <Input
                 id="task-due"
                 type="date"
@@ -323,11 +324,11 @@ function CreateTaskDialog({ onCreated }: { onCreated: () => void }) {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={saving}>
-            Cancel
+            Anuluj
           </Button>
           <Button onClick={submit} disabled={saving}>
             {saving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
-            Create task
+            Utwórz zadanie
           </Button>
         </DialogFooter>
       </DialogContent>

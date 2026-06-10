@@ -93,7 +93,7 @@ export function SocialClient({
 
   async function generate() {
     if (topic.trim().length < 3) {
-      toast.error("Describe the topic or goal of the post");
+      toast.error("Opisz temat lub cel posta");
       return;
     }
     setGenerating(true);
@@ -109,11 +109,11 @@ export function SocialClient({
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Draft generated — review it below");
+      toast.success("Szkic wygenerowany — sprawdź poniżej");
       setTopic("");
       router.refresh();
     } catch {
-      toast.error("Generation failed — try again");
+      toast.error("Generowanie nie powiodło się — spróbuj ponownie");
     } finally {
       setGenerating(false);
     }
@@ -125,11 +125,11 @@ export function SocialClient({
       const res = await fetch(`/api/social/posts/${id}/publish`, { method: "POST" });
       const data = (await res.json()) as SocialPostRow & { error?: string };
       if (!res.ok) throw new Error();
-      if (data.status === "PUBLISHED") toast.success("Post published");
-      else toast.error(data.error ?? "Publishing failed");
+      if (data.status === "PUBLISHED") toast.success("Post opublikowany");
+      else toast.error(data.error ?? "Publikacja nie powiodła się");
       router.refresh();
     } catch {
-      toast.error("Publishing failed");
+      toast.error("Publikacja nie powiodła się");
     } finally {
       setBusyId(null);
     }
@@ -137,7 +137,7 @@ export function SocialClient({
 
   async function schedule(id: string) {
     if (!scheduleAt) {
-      toast.error("Pick a date and time first");
+      toast.error("Najpierw wybierz datę i godzinę");
       return;
     }
     setBusyId(id);
@@ -148,11 +148,11 @@ export function SocialClient({
         body: JSON.stringify({ scheduledAt: new Date(scheduleAt).toISOString() }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Post scheduled");
+      toast.success("Post zaplanowany");
       setScheduleAt("");
       router.refresh();
     } catch {
-      toast.error("Scheduling failed");
+      toast.error("Planowanie nie powiodło się");
     } finally {
       setBusyId(null);
     }
@@ -171,11 +171,11 @@ export function SocialClient({
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Post updated");
+      toast.success("Post zaktualizowany");
       setEditingId(null);
       router.refresh();
     } catch {
-      toast.error("Update failed");
+      toast.error("Aktualizacja nie powiodła się");
     } finally {
       setBusyId(null);
     }
@@ -186,10 +186,10 @@ export function SocialClient({
     try {
       const res = await fetch(`/api/social/posts/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
-      toast.success("Post deleted");
+      toast.success("Post usunięty");
       router.refresh();
     } catch {
-      toast.error("Delete failed");
+      toast.error("Usuwanie nie powiodło się");
     } finally {
       setBusyId(null);
     }
@@ -209,20 +209,20 @@ export function SocialClient({
     <div className="space-y-6">
       <PageHeader
         title="Social Studio"
-        description="AI drafts your ads and posts for Facebook, Instagram and Google — you review, schedule or publish."
+        description="AI pisze reklamy i posty na Facebooka, Instagram i Google — Ty sprawdzasz, planujesz albo publikujesz."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <KpiCard label="Published" value={kpis.publishedCount} icon={Send} accent="success" />
-        <KpiCard label="Scheduled" value={kpis.scheduledCount} icon={CalendarClock} accent="warning" />
-        <KpiCard label="Drafts" value={kpis.draftCount} icon={FileText} />
+        <KpiCard label="Opublikowane" value={kpis.publishedCount} icon={Send} accent="success" />
+        <KpiCard label="Zaplanowane" value={kpis.scheduledCount} icon={CalendarClock} accent="warning" />
+        <KpiCard label="Szkice" value={kpis.draftCount} icon={FileText} />
       </div>
 
       {/* Channel connections */}
       <div className="flex flex-wrap gap-2">
         {channels.map((c) => (
           <Badge key={c.channel} variant={c.live ? "default" : "secondary"} title={c.detail}>
-            {SOCIAL_CHANNEL_LABELS[c.channel]} · {c.live ? "connected" : "simulated"}
+            {SOCIAL_CHANNEL_LABELS[c.channel]} · {c.live ? "połączono" : "symulacja"}
           </Badge>
         ))}
       </div>
@@ -231,13 +231,13 @@ export function SocialClient({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Sparkles className="h-4 w-4" /> Generate with AI
+            <Sparkles className="h-4 w-4" /> Generuj z AI
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <Label>Channel</Label>
+              <Label>Kanał</Label>
               <Select value={channel} onValueChange={(v) => setChannel(v as SocialChannel)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -252,25 +252,25 @@ export function SocialClient({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Type</Label>
+              <Label>Typ</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as "POST" | "AD")}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="POST">Organic post</SelectItem>
-                  <SelectItem value="AD">Paid ad</SelectItem>
+                  <SelectItem value="POST">Post organiczny</SelectItem>
+                  <SelectItem value="AD">Płatna reklama</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Offer (optional)</Label>
+              <Label>Oferta (opcjonalnie)</Label>
               <Select value={offerId || "none"} onValueChange={(v) => setOfferId(v === "none" ? "" : v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="No offer" />
+                  <SelectValue placeholder="Bez oferty" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No offer</SelectItem>
+                  <SelectItem value="none">Bez oferty</SelectItem>
                   {offers.map((o) => (
                     <SelectItem key={o.id} value={o.id}>
                       {o.name}
@@ -281,10 +281,10 @@ export function SocialClient({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="social-topic">Topic / goal</Label>
+            <Label htmlFor="social-topic">Temat / cel</Label>
             <Textarea
               id="social-topic"
-              placeholder='e.g. "Promote our 7-day website package for local barbershops — emphasise mobile-friendliness and Google visibility"'
+              placeholder='np. „Promuj nasz pakiet strony w 7 dni dla lokalnych barberów — podkreśl mobile i widoczność w Google”'
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               rows={2}
@@ -293,7 +293,7 @@ export function SocialClient({
           <div className="flex justify-end">
             <Button onClick={generate} disabled={generating}>
               {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              Generate draft
+              Generuj szkic
             </Button>
           </div>
         </CardContent>
@@ -303,8 +303,8 @@ export function SocialClient({
       {posts.length === 0 ? (
         <EmptyState
           icon={Share2}
-          title="No posts yet"
-          description="Generate your first ad or post above — AI writes it, you approve and publish."
+          title="Brak postów"
+          description="Wygeneruj pierwszą reklamę lub post powyżej — AI pisze, Ty akceptujesz i publikujesz."
         />
       ) : (
         <div className="space-y-3">
@@ -319,11 +319,11 @@ export function SocialClient({
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="outline">
                         {p.kind === "AD" ? <Megaphone className="mr-1 h-3 w-3" /> : <FileText className="mr-1 h-3 w-3" />}
-                        {SOCIAL_CHANNEL_LABELS[p.channel]} · {p.kind === "AD" ? "Ad" : "Post"}
+                        {SOCIAL_CHANNEL_LABELS[p.channel]} · {p.kind === "AD" ? "Reklama" : "Post"}
                       </Badge>
                       <Badge variant="outline" className={meta.className}>
                         {meta.label}
-                        {p.status === "PUBLISHED" && p.simulated ? " (simulated)" : ""}
+                        {p.status === "PUBLISHED" && p.simulated ? " (symulacja)" : ""}
                       </Badge>
                       {p.scheduledAt && p.status === "SCHEDULED" ? (
                         <span className="text-xs text-muted-foreground">
@@ -332,12 +332,12 @@ export function SocialClient({
                       ) : null}
                       {p.publishedAt ? (
                         <span className="text-xs text-muted-foreground">
-                          published {formatDistanceToNow(new Date(p.publishedAt), { addSuffix: true })}
+                          opublikowano {formatDistanceToNow(new Date(p.publishedAt), { addSuffix: true })}
                         </span>
                       ) : null}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Button variant="ghost" size="sm" onClick={() => copyText(p)} title="Copy text">
+                      <Button variant="ghost" size="sm" onClick={() => copyText(p)} title="Kopiuj tekst">
                         {copiedId === p.id ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
                       </Button>
                       {p.status !== "PUBLISHED" ? (
@@ -345,7 +345,7 @@ export function SocialClient({
                           <Button
                             variant="ghost"
                             size="sm"
-                            title="Edit"
+                            title="Edytuj"
                             onClick={() => {
                               if (editing) setEditingId(null);
                               else {
@@ -358,7 +358,7 @@ export function SocialClient({
                           >
                             {editing ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
                           </Button>
-                          <Button variant="ghost" size="sm" title="Delete" onClick={() => remove(p.id)} disabled={busy}>
+                          <Button variant="ghost" size="sm" title="Usuń" onClick={() => remove(p.id)} disabled={busy}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </>
@@ -369,15 +369,15 @@ export function SocialClient({
                   {editing ? (
                     <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
                       <div className="space-y-1.5">
-                        <Label>Headline</Label>
+                        <Label>Nagłówek</Label>
                         <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Body</Label>
+                        <Label>Treść</Label>
                         <Textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={5} />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Image URL {p.channel === "INSTAGRAM" ? "(required for Instagram)" : "(optional)"}</Label>
+                        <Label>Adres obrazka {p.channel === "INSTAGRAM" ? "(wymagany dla Instagrama)" : "(opcjonalnie)"}</Label>
                         <Input
                           placeholder="https://…"
                           value={editImageUrl}
@@ -386,7 +386,7 @@ export function SocialClient({
                       </div>
                       <div className="flex justify-end">
                         <Button size="sm" onClick={() => saveEdit(p.id)} disabled={busy}>
-                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save
+                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Zapisz
                         </Button>
                       </div>
                     </div>
@@ -404,7 +404,7 @@ export function SocialClient({
                         <p className="text-xs text-sky-600 dark:text-sky-400">{p.hashtags.join(" ")}</p>
                       ) : null}
                       {p.link ? <p className="truncate text-xs text-muted-foreground">{p.link}</p> : null}
-                      {p.error ? <p className="text-xs text-destructive">Error: {p.error}</p> : null}
+                      {p.error ? <p className="text-xs text-destructive">Błąd: {p.error}</p> : null}
                     </div>
                   )}
 
@@ -417,11 +417,11 @@ export function SocialClient({
                         onChange={(e) => setScheduleAt(e.target.value)}
                       />
                       <Button variant="outline" size="sm" onClick={() => schedule(p.id)} disabled={busy}>
-                        <CalendarClock className="h-4 w-4" /> Schedule
+                        <CalendarClock className="h-4 w-4" /> Zaplanuj
                       </Button>
                       <Button size="sm" onClick={() => publish(p.id)} disabled={busy}>
                         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        Publish now
+                        Publikuj teraz
                       </Button>
                     </div>
                   ) : null}

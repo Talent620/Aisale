@@ -53,40 +53,40 @@ export default function RegisterPage() {
   return (
     <div className="w-full">
       <div className="mb-8 space-y-2">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Create your workspace</h1>
-        <p className="text-sm text-muted-foreground">Start acquiring and converting leads in minutes.</p>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Załóż swój workspace</h1>
+        <p className="text-sm text-muted-foreground">Zacznij pozyskiwać i konwertować leady w kilka minut.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="name">Your name</Label>
-          <Input id="name" placeholder="Jane Doe" {...register("name")} />
+          <Label htmlFor="name">Twoje imię</Label>
+          <Input id="name" placeholder="Jan Kowalski" {...register("name")} />
           {errors.name ? <p className="text-xs text-destructive">{errors.name.message}</p> : null}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="companyName">Company name</Label>
+          <Label htmlFor="companyName">Nazwa firmy</Label>
           <Input id="companyName" placeholder="Northstar Studio" {...register("companyName")} />
           {errors.companyName ? <p className="text-xs text-destructive">{errors.companyName.message}</p> : null}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" autoComplete="email" placeholder="you@company.com" {...register("email")} />
+          <Label htmlFor="email">E-mail</Label>
+          <Input id="email" type="email" autoComplete="email" placeholder="ty@firma.pl" {...register("email")} />
           {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" autoComplete="new-password" placeholder="At least 8 characters" {...register("password")} />
+          <Label htmlFor="password">Hasło</Label>
+          <Input id="password" type="password" autoComplete="new-password" placeholder="Min. 8 znaków" {...register("password")} />
           {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create workspace"}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Załóż workspace"}
         </Button>
       </form>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Already have an account?{" "}
+        Masz już konto?{" "}
         <Link href="/login" className="font-medium text-primary hover:underline">
-          Sign in
+          Zaloguj się
         </Link>
       </p>
     </div>

@@ -26,9 +26,9 @@ describe("buildPlaybook", () => {
       lead: baseLead({ hasWebsite: false, tags: ["no-website"] }),
       emailsSent: 0,
     });
-    expect(pb.angles[0].title).toContain("No website");
+    expect(pb.angles[0].title).toContain("Brak strony");
     expect(pb.angles[0].power).toBe("high");
-    expect(pb.opener).toContain("couldn't find one");
+    expect(pb.opener).toContain("nie mogłem jej znaleźć");
   });
 
   it("quotes the real load time from the audit", () => {
@@ -37,8 +37,8 @@ describe("buildPlaybook", () => {
       audit: { overall: 31, loadTimeMs: 8400, https: false, mobileFriendly: false, issues: [] },
       emailsSent: 0,
     });
-    expect(pb.angles.some((a) => a.title.includes("8.4s"))).toBe(true);
-    expect(pb.angles.some((a) => a.title.includes("Not secure"))).toBe(true);
+    expect(pb.angles.some((a) => a.title.includes("8.4 s"))).toBe(true);
+    expect(pb.angles.some((a) => a.title.includes("Niezabezpieczona"))).toBe(true);
   });
 
   it("adapts next moves to the call status", () => {
@@ -46,13 +46,13 @@ describe("buildPlaybook", () => {
       lead: baseLead({ callStatus: "INTERESTED", callAttempts: 1, hasWebsite: false }),
       emailsSent: 1,
     });
-    expect(interested.moves[0].title).toContain("24h");
+    expect(interested.moves[0].title).toContain("24 h");
 
     const noAnswer = buildPlaybook({
       lead: baseLead({ callStatus: "NO_ANSWER", callAttempts: 2 }),
       emailsSent: 1,
     });
-    expect(noAnswer.moves.some((m) => m.title.includes("time slot"))).toBe(true);
+    expect(noAnswer.moves.some((m) => m.title.includes("porę"))).toBe(true);
     // 3 touches so far → persistence reminder appears
     expect(noAnswer.moves.some((m) => m.detail.includes("93%"))).toBe(true);
   });
@@ -64,9 +64,9 @@ describe("buildPlaybook", () => {
       emailsSent: 3,
     });
     const byLabel = Object.fromEntries(pb.status.map((s) => [s.label, s.done]));
-    expect(byLabel["Called"]).toBe(true);
-    expect(byLabel["Email sent"]).toBe(true);
-    expect(byLabel["Meeting booked"]).toBe(true);
-    expect(byLabel["Proposal sent"]).toBe(true);
+    expect(byLabel["Telefon wykonany"]).toBe(true);
+    expect(byLabel["E-mail wysłany"]).toBe(true);
+    expect(byLabel["Spotkanie umówione"]).toBe(true);
+    expect(byLabel["Oferta wysłana"]).toBe(true);
   });
 });

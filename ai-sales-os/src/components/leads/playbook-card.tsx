@@ -22,7 +22,7 @@ export function PlaybookCard({ playbook }: { playbook: Playbook }) {
     <Card className="border-primary/20 bg-primary/[0.02]">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
-          <Swords className="h-4 w-4 text-primary" /> Battle card
+          <Swords className="h-4 w-4 text-primary" /> Karta bojowa
         </CardTitle>
         <p className="text-sm text-muted-foreground">{playbook.summary}</p>
       </CardHeader>
@@ -30,7 +30,7 @@ export function PlaybookCard({ playbook }: { playbook: Playbook }) {
         {/* Where to hit */}
         <div className="space-y-3">
           <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <Crosshair className="h-3.5 w-3.5" /> Where to hit
+            <Crosshair className="h-3.5 w-3.5" /> Gdzie uderzyć
           </p>
           {playbook.angles.map((a) => (
             <div
@@ -46,7 +46,7 @@ export function PlaybookCard({ playbook }: { playbook: Playbook }) {
                 <p className="text-sm font-medium">{a.title}</p>
                 {a.power === "high" ? (
                   <Badge variant="outline" className="shrink-0 bg-success/10 text-success border-success/20">
-                    strongest
+                    najmocniejszy
                   </Badge>
                 ) : null}
               </div>
@@ -55,7 +55,7 @@ export function PlaybookCard({ playbook }: { playbook: Playbook }) {
           ))}
           <div className="rounded-md border border-border bg-muted/30 p-3">
             <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <Quote className="h-3.5 w-3.5" /> Ready opener
+              <Quote className="h-3.5 w-3.5" /> Gotowe otwarcie rozmowy
             </p>
             <p className="mt-1.5 text-xs italic leading-relaxed text-foreground/85">{playbook.opener}</p>
           </div>
@@ -64,7 +64,7 @@ export function PlaybookCard({ playbook }: { playbook: Playbook }) {
         {/* What's done */}
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Where we stand
+            Na czym stoimy
           </p>
           <ul className="space-y-2">
             {playbook.status.map((s) => (
@@ -97,7 +97,7 @@ export function PlaybookCard({ playbook }: { playbook: Playbook }) {
         {/* How to win */}
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            How to win them
+            Jak ich przejąć
           </p>
           <ol className="space-y-2">
             {playbook.moves.map((m, i) => (
@@ -113,9 +113,9 @@ export function PlaybookCard({ playbook }: { playbook: Playbook }) {
           <details className="group rounded-md border border-border bg-card">
             <summary className="flex cursor-pointer items-center gap-1.5 p-3 text-sm font-medium marker:content-none">
               <MessageCircleQuestion className="h-4 w-4 text-muted-foreground" />
-              Objection cheat sheet
-              <span className="ml-auto text-xs text-muted-foreground group-open:hidden">show</span>
-              <span className="ml-auto hidden text-xs text-muted-foreground group-open:inline">hide</span>
+              Ściąga na obiekcje
+              <span className="ml-auto text-xs text-muted-foreground group-open:hidden">pokaż</span>
+              <span className="ml-auto hidden text-xs text-muted-foreground group-open:inline">ukryj</span>
             </summary>
             <div className="space-y-3 border-t border-border p-3">
               {playbook.objections.map((o) => (

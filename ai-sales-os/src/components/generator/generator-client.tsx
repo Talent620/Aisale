@@ -37,7 +37,7 @@ interface GenResult {
 }
 
 const NONE = "NONE";
-const TONES = ["Professional", "Warm", "Direct", "Consultative", "Playful"];
+const TONES = ["Profesjonalny", "Ciepły", "Bezpośredni", "Doradczy", "Swobodny"];
 const CHANNELS: CampaignChannel[] = [
   "EMAIL",
   "LINKEDIN",
@@ -46,6 +46,15 @@ const CHANNELS: CampaignChannel[] = [
   "COLD_CALL",
   "MULTI",
 ];
+
+const CHANNEL_LABELS: Record<CampaignChannel, string> = {
+  EMAIL: "E-mail",
+  LINKEDIN: "LinkedIn",
+  FACEBOOK: "Facebook",
+  INSTAGRAM: "Instagram",
+  COLD_CALL: "Zimne telefony",
+  MULTI: "Wiele kanałów",
+};
 
 export function GeneratorClient({
   leads,
@@ -61,7 +70,7 @@ export function GeneratorClient({
   const [kind, setKind] = useState<ContentKind>(defaultKind ?? "EMAIL");
   const [leadId, setLeadId] = useState<string>(defaultLeadId ?? NONE);
   const [offerId, setOfferId] = useState<string>(NONE);
-  const [tone, setTone] = useState<string>("Professional");
+  const [tone, setTone] = useState<string>("Profesjonalny");
   const [channel, setChannel] = useState<CampaignChannel>("EMAIL");
   const [prompt, setPrompt] = useState("");
   const [createApproval, setCreateApproval] = useState(true);
@@ -90,12 +99,12 @@ export function GeneratorClient({
       const data: GenResult = await res.json();
       setResult(data);
       if (data.fallback) {
-        toast.info("Generated with the built-in mock engine (no API key set).");
+        toast.info("Wygenerowano wbudowanym silnikiem demo (brak klucza API).");
       } else {
-        toast.success("Draft generated");
+        toast.success("Szkic wygenerowany");
       }
     } catch {
-      toast.error("Generation failed. Please try again.");
+      toast.error("Generowanie nie powiodło się. Spróbuj ponownie.");
     } finally {
       setLoading(false);
     }
@@ -117,12 +126,12 @@ export function GeneratorClient({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Wand2 className="h-4 w-4 text-primary" />
-            Compose
+            Tworzenie
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Content type</Label>
+            <Label>Typ treści</Label>
             <Select value={kind} onValueChange={(v) => setKind(v as ContentKind)}>
               <SelectTrigger>
                 <SelectValue />
@@ -138,13 +147,13 @@ export function GeneratorClient({
           </div>
 
           <div className="space-y-1.5">
-            <Label>For lead</Label>
+            <Label>Dla leada</Label>
             <Select value={leadId} onValueChange={setLeadId}>
               <SelectTrigger>
-                <SelectValue placeholder="No specific lead" />
+                <SelectValue placeholder="Bez konkretnego leada" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NONE}>No specific lead</SelectItem>
+                <SelectItem value={NONE}>Bez konkretnego leada</SelectItem>
                 {leads.map((l) => (
                   <SelectItem key={l.id} value={l.id}>
                     {l.name}
@@ -156,13 +165,13 @@ export function GeneratorClient({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Offer</Label>
+            <Label>Oferta</Label>
             <Select value={offerId} onValueChange={setOfferId}>
               <SelectTrigger>
-                <SelectValue placeholder="No offer" />
+                <SelectValue placeholder="Bez oferty" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NONE}>No offer</SelectItem>
+                <SelectItem value={NONE}>Bez oferty</SelectItem>
                 {offers.map((o) => (
                   <SelectItem key={o.id} value={o.id}>
                     {o.name}
@@ -174,7 +183,7 @@ export function GeneratorClient({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Tone</Label>
+              <Label>Ton</Label>
               <Select value={tone} onValueChange={setTone}>
                 <SelectTrigger>
                   <SelectValue />
@@ -189,7 +198,7 @@ export function GeneratorClient({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Channel</Label>
+              <Label>Kanał</Label>
               <Select
                 value={channel}
                 onValueChange={(v) => setChannel(v as CampaignChannel)}
@@ -200,7 +209,7 @@ export function GeneratorClient({
                 <SelectContent>
                   {CHANNELS.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {c.charAt(0) + c.slice(1).toLowerCase().replace("_", " ")}
+                      {CHANNEL_LABELS[c]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -209,12 +218,12 @@ export function GeneratorClient({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="gen-prompt">Extra instructions</Label>
+            <Label htmlFor="gen-prompt">Dodatkowe wskazówki</Label>
             <Textarea
               id="gen-prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g. mention our trade-fair experience and keep it under 120 words"
+              placeholder="np. wspomnij o naszym doświadczeniu targowym i zmieść się w 120 słowach"
               rows={4}
             />
           </div>
@@ -227,9 +236,9 @@ export function GeneratorClient({
               className="mt-0.5 h-4 w-4 rounded border-input accent-primary"
             />
             <span className="text-sm">
-              <span className="font-medium">Send to approval queue</span>
+              <span className="font-medium">Przekaż do kolejki akceptacji</span>
               <span className="block text-xs text-muted-foreground">
-                Nothing is sent automatically — a human reviews every AI draft.
+                Nic nie jest wysyłane automatycznie — każdy szkic AI weryfikuje człowiek.
               </span>
             </span>
           </label>
@@ -240,18 +249,18 @@ export function GeneratorClient({
             ) : (
               <Sparkles className="mr-1.5 h-4 w-4" />
             )}
-            Generate draft
+            Generuj szkic
           </Button>
         </CardContent>
       </Card>
 
       <Card className="min-h-[24rem]">
         <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Result</CardTitle>
+          <CardTitle className="text-base">Wynik</CardTitle>
           {result ? (
             <div className="flex items-center gap-2">
               <Badge variant={result.fallback ? "warning" : "success"}>
-                {result.fallback ? "mock" : result.provider}
+                {result.fallback ? "demo" : result.provider}
               </Badge>
               <Button size="sm" variant="outline" onClick={copy}>
                 {copied ? (
@@ -259,7 +268,7 @@ export function GeneratorClient({
                 ) : (
                   <Copy className="mr-1.5 h-3.5 w-3.5" />
                 )}
-                Copy
+                Kopiuj
               </Button>
             </div>
           ) : null}
@@ -268,14 +277,14 @@ export function GeneratorClient({
           {loading ? (
             <div className="flex h-64 flex-col items-center justify-center gap-3 text-center text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin" />
-              <p className="text-sm">Drafting your {CONTENT_KIND_LABELS[kind].toLowerCase()}…</p>
+              <p className="text-sm">Generujemy: {CONTENT_KIND_LABELS[kind].toLowerCase()}…</p>
             </div>
           ) : result ? (
             <div className="space-y-4">
               {result.subject ? (
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Subject
+                    Temat
                   </p>
                   <p className="mt-1 font-medium">{result.subject}</p>
                 </div>
@@ -283,7 +292,7 @@ export function GeneratorClient({
               <div>
                 {result.subject ? (
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Body
+                    Treść
                   </p>
                 ) : null}
                 <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">
@@ -293,11 +302,11 @@ export function GeneratorClient({
               {result.approvalId ? (
                 <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
                   <p className="text-sm text-muted-foreground">
-                    Added to the approval queue for review.
+                    Dodano do kolejki akceptacji do weryfikacji.
                   </p>
                   <Button asChild size="sm" variant="ghost">
                     <Link href="/approvals">
-                      Review
+                      Sprawdź
                       <ArrowRight className="ml-1 h-3.5 w-3.5" />
                     </Link>
                   </Button>
@@ -308,9 +317,9 @@ export function GeneratorClient({
             <div className="flex h-64 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
               <Sparkles className="h-7 w-7 opacity-40" />
               <p className="text-sm">
-                Configure the options and generate a draft.
+                Ustaw opcje i wygeneruj szkic.
                 <br />
-                Works out of the box — no API key required.
+                Działa od razu — bez klucza API.
               </p>
             </div>
           )}

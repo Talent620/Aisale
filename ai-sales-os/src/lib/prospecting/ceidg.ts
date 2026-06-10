@@ -43,8 +43,8 @@ export function ceidgProvider(token: string): BusinessProvider {
         return firms.map((f) => {
           const owner = [f.wlasciciel?.imie, f.wlasciciel?.nazwisko].filter(Boolean).join(" ");
           const addr = f.adresDzialalnosci;
-          const signals = ["Newly registered (last 30 days)"];
-          if (!f.www) signals.push("No website — needs one");
+          const signals = ["Świeżo zarejestrowana (ostatnie 30 dni)"];
+          if (!f.www) signals.push("Brak strony WWW — potrzebują jej");
           return {
             name: f.nazwa ?? owner ?? "New business",
             phone: f.telefon ?? null,

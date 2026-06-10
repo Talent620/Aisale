@@ -101,7 +101,7 @@ export function CallsClient({
 
   async function saveLog(leadId: string) {
     if (!status) {
-      toast.error("Pick a call outcome");
+      toast.error("Wybierz wynik rozmowy");
       return;
     }
     setSaving(true);
@@ -116,11 +116,11 @@ export function CallsClient({
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Call logged");
+      toast.success("Rozmowa zapisana");
       setOpenId(null);
       router.refresh();
     } catch {
-      toast.error("Could not log the call");
+      toast.error("Nie udało się zapisać rozmowy");
     } finally {
       setSaving(false);
     }
@@ -129,30 +129,30 @@ export function CallsClient({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Calls"
-        description="Your calling queue — best leads first, with audit facts to mention and one-tap outcome logging."
+        title="Telefony"
+        description="Kolejka telefoniczna — najlepsze leady na górze, z konkretami z audytu i zapisem wyniku jednym kliknięciem."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <KpiCard label="Calls made today" value={kpis.callsToday} icon={PhoneCall} />
-        <KpiCard label="Interested" value={kpis.interested} icon={ThumbsUp} accent="warning" />
-        <KpiCard label="Meetings booked" value={kpis.meetingsBooked} icon={CalendarClock} accent="success" />
+        <KpiCard label="Telefony dziś" value={kpis.callsToday} icon={PhoneCall} />
+        <KpiCard label="Zainteresowani" value={kpis.interested} icon={ThumbsUp} accent="warning" />
+        <KpiCard label="Umówione spotkania" value={kpis.meetingsBooked} icon={CalendarClock} accent="success" />
       </div>
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
         <TabsList>
-          <TabsTrigger value="queue">To call</TabsTrigger>
-          <TabsTrigger value="callbacks">Callbacks</TabsTrigger>
-          <TabsTrigger value="interested">Warm</TabsTrigger>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="queue">Do obdzwonienia</TabsTrigger>
+          <TabsTrigger value="callbacks">Oddzwonienia</TabsTrigger>
+          <TabsTrigger value="interested">Ciepłe</TabsTrigger>
+          <TabsTrigger value="all">Wszystkie</TabsTrigger>
         </TabsList>
       </Tabs>
 
       {filtered.length === 0 ? (
         <EmptyState
           icon={Phone}
-          title="Nothing in this queue"
-          description="Import leads with phone numbers from the Lead Finder — they'll show up here ready to call."
+          title="Pusto w tej kolejce"
+          description="Zaimportuj firmy z numerami w „Szukaj firm” — pojawią się tu gotowe do obdzwonienia."
         />
       ) : (
         <div className="space-y-3">
@@ -174,20 +174,20 @@ export function CallsClient({
                         </Badge>
                         {l.hasWebsite === false ? (
                           <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                            <GlobeLock className="mr-1 h-3 w-3" /> No website
+                            <GlobeLock className="mr-1 h-3 w-3" /> Brak strony
                           </Badge>
                         ) : null}
                         {l.auditScore != null && l.auditScore < 50 ? (
                           <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
-                            <Wrench className="mr-1 h-3 w-3" /> Site {l.auditScore}/100
+                            <Wrench className="mr-1 h-3 w-3" /> Strona {l.auditScore}/100
                           </Badge>
                         ) : null}
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {[l.companyName, l.industry, l.region].filter(Boolean).join(" · ")}
-                        {l.callAttempts > 0 ? ` · ${l.callAttempts} attempt${l.callAttempts === 1 ? "" : "s"}` : ""}
+                        {l.callAttempts > 0 ? ` · prób: ${l.callAttempts}` : ""}
                         {l.lastCallAt
-                          ? ` · last call ${formatDistanceToNow(new Date(l.lastCallAt), { addSuffix: true })}`
+                          ? ` · ostatni telefon ${formatDistanceToNow(new Date(l.lastCallAt), { addSuffix: true })}`
                           : ""}
                       </p>
                       {l.lastNote ? (
@@ -198,7 +198,7 @@ export function CallsClient({
                       ) : null}
                       {l.audit?.issues.length ? (
                         <p className="text-xs text-warning">
-                          Talking points: {l.audit.issues.slice(0, 2).join(" · ")}
+                          O czym mówić: {l.audit.issues.slice(0, 2).join(" · ")}
                         </p>
                       ) : null}
                     </div>
@@ -210,7 +210,7 @@ export function CallsClient({
                       </Button>
                       <Button variant={open ? "secondary" : "default"} size="sm" onClick={() => openLog(l.id)}>
                         {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        Log call
+                        Zapisz rozmowę
                       </Button>
                     </div>
                   </div>
@@ -232,17 +232,17 @@ export function CallsClient({
                       </div>
                       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
                         <div className="space-y-1.5">
-                          <Label htmlFor={`note-${l.id}`}>Note — what did you learn?</Label>
+                          <Label htmlFor={`note-${l.id}`}>Notatka — czego się dowiedziałeś?</Label>
                           <Textarea
                             id={`note-${l.id}`}
-                            placeholder="e.g. Owner interested, asked to send the audit by email; decision next week…"
+                            placeholder="np. Właściciel zainteresowany, prosi o audyt mailem; decyzja w przyszłym tygodniu…"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                             rows={3}
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label htmlFor={`next-${l.id}`}>Next call (optional)</Label>
+                          <Label htmlFor={`next-${l.id}`}>Następny telefon (opcjonalnie)</Label>
                           <Input
                             id={`next-${l.id}`}
                             type="datetime-local"
@@ -253,11 +253,11 @@ export function CallsClient({
                       </div>
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="sm" onClick={() => setOpenId(null)}>
-                          Cancel
+                          Anuluj
                         </Button>
                         <Button size="sm" onClick={() => saveLog(l.id)} disabled={saving}>
                           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                          Save call
+                          Zapisz
                         </Button>
                       </div>
                     </div>

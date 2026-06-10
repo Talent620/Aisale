@@ -70,18 +70,18 @@ export function scoreLead(
   const b: ScoreBreakdown = {};
 
   // Acquisition channel quality
-  b["Source"] = SOURCE_POINTS[lead.source] ?? 4;
+  b["Źródło"] = SOURCE_POINTS[lead.source] ?? 4;
 
   // Declared urgency
-  b["Priority"] = PRIORITY_POINTS[lead.priority] ?? 7;
+  b["Priorytet"] = PRIORITY_POINTS[lead.priority] ?? 7;
 
   // Budget signal
   const budget = lead.budget ?? 0;
-  b["Budget"] = budget >= 50000 ? 18 : budget >= 20000 ? 13 : budget >= 5000 ? 8 : budget > 0 ? 4 : 0;
+  b["Budżet"] = budget >= 50000 ? 18 : budget >= 20000 ? 13 : budget >= 5000 ? 8 : budget > 0 ? 4 : 0;
 
   // Deal value potential
   const value = lead.estimatedValue ?? 0;
-  b["Deal value"] = value >= 50000 ? 12 : value >= 15000 ? 8 : value > 0 ? 4 : 0;
+  b["Wartość transakcji"] = value >= 50000 ? 12 : value >= 15000 ? 8 : value > 0 ? 4 : 0;
 
   // Data completeness (reachability)
   let completeness = 0;
@@ -89,34 +89,34 @@ export function scoreLead(
   if (lead.phone) completeness += 4;
   if (lead.companyName) completeness += 3;
   if (lead.industry) completeness += 2;
-  b["Profile completeness"] = completeness;
+  b["Kompletność profilu"] = completeness;
 
   // Recency of engagement
   const now = Date.now();
   if (lead.lastContactedAt) {
     const days = (now - new Date(lead.lastContactedAt).getTime()) / 86_400_000;
-    b["Recent engagement"] = days <= 3 ? 12 : days <= 7 ? 8 : days <= 21 ? 4 : 0;
+    b["Świeży kontakt"] = days <= 3 ? 12 : days <= 7 ? 8 : days <= 21 ? 4 : 0;
   } else {
-    b["Recent engagement"] = 0;
+    b["Świeży kontakt"] = 0;
   }
 
   // Close timeline
   if (lead.expectedCloseAt) {
     const days = (new Date(lead.expectedCloseAt).getTime() - now) / 86_400_000;
-    b["Close timeline"] = days <= 14 ? 8 : days <= 45 ? 5 : 2;
+    b["Bliski termin zamknięcia"] = days <= 14 ? 8 : days <= 45 ? 5 : 2;
   } else {
-    b["Close timeline"] = 0;
+    b["Bliski termin zamknięcia"] = 0;
   }
 
   // Staleness penalty for untouched, never-contacted leads
   const ageDays = (now - new Date(lead.createdAt).getTime()) / 86_400_000;
   if (!lead.lastContactedAt && ageDays > 14) {
-    b["Stale (no contact)"] = -10;
+    b["Zastały (brak kontaktu)"] = -10;
   }
 
   // Outcome overrides
-  if (lead.outcome === LeadOutcome.WON) b["Won"] = 100;
-  if (lead.outcome === LeadOutcome.LOST) b["Lost"] = -100;
+  if (lead.outcome === LeadOutcome.WON) b["Wygrany"] = 100;
+  if (lead.outcome === LeadOutcome.LOST) b["Przegrany"] = -100;
 
   let raw = Object.values(b).reduce((s, n) => s + n, 0);
   const score = Math.max(0, Math.min(100, Math.round(raw)));
@@ -130,12 +130,12 @@ export function scoreLead(
 
   const reason =
     lead.outcome === LeadOutcome.WON
-      ? "Closed-won."
+      ? "Deal wygrany."
       : lead.outcome === LeadOutcome.LOST
-        ? "Closed-lost."
+        ? "Deal przegrany."
         : top.length
-          ? `Driven by ${top.join(", ").toLowerCase()}.`
-          : "Limited signal — enrich this lead to improve scoring.";
+          ? `Decydują: ${top.join(", ").toLowerCase()}.`
+          : "Mało sygnałów — wzbogać leada, aby poprawić scoring.";
 
   return { score, grade, breakdown: b, reason };
 }

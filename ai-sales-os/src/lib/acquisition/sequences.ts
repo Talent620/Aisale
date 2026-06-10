@@ -21,22 +21,22 @@ interface StepSpec {
 /** A sensible 4-touch cold cadence used when no sequence has been defined yet. */
 export const DEFAULT_SEQUENCE_STEPS: StepSpec[] = [
   {
-    order: 1, dayOffset: 0, channel: "EMAIL", kind: "EMAIL", name: "Intro email",
+    order: 1, dayOffset: 0, channel: "EMAIL", kind: "EMAIL", name: "E-mail otwierający",
     prompt:
       "First-touch cold email. Open with genuine relevance to their context or buying signals, make one specific value point, and end with a soft ask for a short call. Under 110 words, no false familiarity.",
   },
   {
-    order: 2, dayOffset: 2, channel: "EMAIL", kind: "FOLLOW_UP", name: "Value bump",
+    order: 2, dayOffset: 2, channel: "EMAIL", kind: "FOLLOW_UP", name: "Dobicie z wartością",
     prompt:
       "Short follow-up to the intro email. Add one new proof point or angle and a single soft CTA. Under 60 words.",
   },
   {
-    order: 3, dayOffset: 3, channel: "LINKEDIN", kind: "DM", name: "LinkedIn touch",
+    order: 3, dayOffset: 3, channel: "LINKEDIN", kind: "DM", name: "Kontakt LinkedIn",
     prompt:
       "Brief, friendly LinkedIn DM referencing the same value point. Ask one qualifying question; do not dump a pitch.",
   },
   {
-    order: 4, dayOffset: 4, channel: "EMAIL", kind: "FOLLOW_UP", name: "Break-up",
+    order: 4, dayOffset: 4, channel: "EMAIL", kind: "FOLLOW_UP", name: "Pożegnalny",
     prompt:
       "Polite break-up email. Acknowledge the timing might be off, leave the door open, and make it easy to say 'not now'. Under 70 words.",
   },

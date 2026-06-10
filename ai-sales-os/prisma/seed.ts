@@ -57,30 +57,30 @@ interface ScoreInput {
 
 function scoreLead(lead: ScoreInput) {
   const b: Record<string, number> = {};
-  b["Source"] = SOURCE_POINTS[lead.source] ?? 4;
-  b["Priority"] = PRIORITY_POINTS[lead.priority] ?? 7;
+  b["Źródło"] = SOURCE_POINTS[lead.source] ?? 4;
+  b["Priorytet"] = PRIORITY_POINTS[lead.priority] ?? 7;
   const budget = lead.budget ?? 0;
-  b["Budget"] = budget >= 50000 ? 18 : budget >= 20000 ? 13 : budget >= 5000 ? 8 : budget > 0 ? 4 : 0;
+  b["Budżet"] = budget >= 50000 ? 18 : budget >= 20000 ? 13 : budget >= 5000 ? 8 : budget > 0 ? 4 : 0;
   const value = lead.estimatedValue ?? 0;
-  b["Deal value"] = value >= 50000 ? 12 : value >= 15000 ? 8 : value > 0 ? 4 : 0;
+  b["Wartość transakcji"] = value >= 50000 ? 12 : value >= 15000 ? 8 : value > 0 ? 4 : 0;
   let completeness = 0;
   if (lead.email) completeness += 5;
   if (lead.phone) completeness += 4;
   if (lead.companyName) completeness += 3;
   if (lead.industry) completeness += 2;
-  b["Profile completeness"] = completeness;
+  b["Kompletność profilu"] = completeness;
   if (lead.lastContactedAt) {
     const days = (now - lead.lastContactedAt.getTime()) / DAY;
-    b["Recent engagement"] = days <= 3 ? 12 : days <= 7 ? 8 : days <= 21 ? 4 : 0;
-  } else b["Recent engagement"] = 0;
+    b["Świeży kontakt"] = days <= 3 ? 12 : days <= 7 ? 8 : days <= 21 ? 4 : 0;
+  } else b["Świeży kontakt"] = 0;
   if (lead.expectedCloseAt) {
     const days = (lead.expectedCloseAt.getTime() - now) / DAY;
-    b["Close timeline"] = days <= 14 ? 8 : days <= 45 ? 5 : 2;
-  } else b["Close timeline"] = 0;
+    b["Bliski termin zamknięcia"] = days <= 14 ? 8 : days <= 45 ? 5 : 2;
+  } else b["Bliski termin zamknięcia"] = 0;
   const ageDays = (now - lead.createdAt.getTime()) / DAY;
-  if (!lead.lastContactedAt && ageDays > 14) b["Stale (no contact)"] = -10;
-  if (lead.outcome === "WON") b["Won"] = 100;
-  if (lead.outcome === "LOST") b["Lost"] = -100;
+  if (!lead.lastContactedAt && ageDays > 14) b["Zastały (brak kontaktu)"] = -10;
+  if (lead.outcome === "WON") b["Wygrany"] = 100;
+  if (lead.outcome === "LOST") b["Przegrany"] = -100;
   const raw = Object.values(b).reduce((s, n) => s + n, 0);
   const score = Math.max(0, Math.min(100, Math.round(raw)));
   const grade = gradeFromScore(score);
@@ -101,13 +101,13 @@ const STAGES: {
   isWon?: boolean;
   isLost?: boolean;
 }[] = [
-  { name: "New", order: 1, probability: 0.05, color: "#94a3b8" },
-  { name: "Contacted", order: 2, probability: 0.15, color: "#0ea5e9" },
-  { name: "Qualified", order: 3, probability: 0.35, color: "#6366f1" },
-  { name: "Proposal", order: 4, probability: 0.55, color: "#a855f7" },
-  { name: "Negotiation", order: 5, probability: 0.75, color: "#f59e0b" },
-  { name: "Won", order: 6, probability: 1, color: "#16a34a", isWon: true },
-  { name: "Lost", order: 7, probability: 0, color: "#ef4444", isLost: true },
+  { name: "Nowy", order: 1, probability: 0.05, color: "#94a3b8" },
+  { name: "Kontakt", order: 2, probability: 0.15, color: "#0ea5e9" },
+  { name: "Kwalifikacja", order: 3, probability: 0.35, color: "#6366f1" },
+  { name: "Oferta", order: 4, probability: 0.55, color: "#a855f7" },
+  { name: "Negocjacje", order: 5, probability: 0.75, color: "#f59e0b" },
+  { name: "Wygrany", order: 6, probability: 1, color: "#16a34a", isWon: true },
+  { name: "Przegrany", order: 7, probability: 0, color: "#ef4444", isLost: true },
 ];
 
 // ----------------------------- lead data ---------------------------
@@ -134,31 +134,31 @@ interface LeadSpec {
 }
 
 const LEADS: LeadSpec[] = [
-  { name: "Tomasz Wój­cik", email: "t.wojcik@stalmont.pl", phone: "+48 601 220 145", position: "Marketing Director", companyName: "Stalmont S.A.", industry: "Steel fabrication", region: "Śląskie", source: "REFERRAL", priority: "URGENT", budget: 60000, estimatedValue: 72000, stage: "Negotiation", lastContactedDays: 1, closeInDays: 10, createdDaysAgo: 26, tags: ["enterprise", "warm"], note: "CEO loved the booth-lead concept. Wants contract by end of month." },
-  { name: "Anna Kowalska", email: "anna@medexpo.eu", phone: "+48 512 880 332", position: "CEO", companyName: "MedExpo Group", industry: "Medical devices", region: "Mazowieckie", source: "INBOUND_FORM", priority: "HIGH", budget: 40000, estimatedValue: 48000, stage: "Proposal", lastContactedDays: 2, closeInDays: 21, createdDaysAgo: 19, tags: ["inbound"], note: "Sent proposal v2. Decision after their board meeting." },
-  { name: "Piotr Nowak", email: "p.nowak@autoparts24.pl", phone: "+48 698 114 220", position: "Owner", companyName: "AutoParts24", industry: "Automotive", region: "Wielkopolskie", source: "EVENT", priority: "HIGH", budget: 25000, estimatedValue: 30000, stage: "Qualified", lastContactedDays: 4, closeInDays: 30, createdDaysAgo: 22 },
-  { name: "Katarzyna Lewandowska", email: "k.lewandowska@greenpack.pl", position: "Head of Sales", companyName: "GreenPack", industry: "Packaging", region: "Pomorskie", source: "WEBSITE", priority: "MEDIUM", budget: 15000, estimatedValue: 18000, stage: "Contacted", lastContactedDays: 6, createdDaysAgo: 14 },
-  { name: "Michał Zieliński", email: "michal@brewtech.io", phone: "+48 660 778 901", position: "Founder", companyName: "BrewTech", industry: "Food & beverage", region: "Małopolskie", source: "LINKEDIN", priority: "MEDIUM", budget: 12000, estimatedValue: 16000, stage: "Qualified", lastContactedDays: 8, closeInDays: 40, createdDaysAgo: 18 },
-  { name: "Magdalena Wiśniewska", email: "m.wisniewska@furnipol.pl", position: "CMO", companyName: "FurniPol", industry: "Furniture", region: "Kujawsko-Pomorskie", source: "REFERRAL", priority: "HIGH", budget: 35000, estimatedValue: 42000, stage: "Proposal", lastContactedDays: 3, closeInDays: 18, createdDaysAgo: 20, tags: ["warm"] },
-  { name: "Robert Kamiński", email: "r.kaminski@hydroflex.pl", phone: "+48 605 332 118", position: "Procurement", companyName: "HydroFlex", industry: "Industrial equipment", region: "Dolnośląskie", source: "COLD_OUTREACH", priority: "LOW", estimatedValue: 8000, stage: "New", createdDaysAgo: 3 },
-  { name: "Ewa Dąbrowska", email: "ewa@cleanlab.pl", position: "Lab Manager", companyName: "CleanLab", industry: "Chemicals", region: "Łódzkie", source: "MARKETPLACE", priority: "MEDIUM", budget: 10000, estimatedValue: 14000, stage: "Contacted", lastContactedDays: 9, createdDaysAgo: 12 },
-  { name: "Grzegorz Mazur", email: "g.mazur@solartech.pl", phone: "+48 514 009 887", position: "CEO", companyName: "SolarTech", industry: "Renewable energy", region: "Podkarpackie", source: "INBOUND_FORM", priority: "URGENT", budget: 55000, estimatedValue: 65000, stage: "Negotiation", lastContactedDays: 2, closeInDays: 12, createdDaysAgo: 24, tags: ["enterprise", "hot"], note: "Budget approved. Finalising scope of the retainer." },
-  { name: "Joanna Krawczyk", email: "j.krawczyk@texstyle.pl", position: "Brand Manager", companyName: "TexStyle", industry: "Textiles", region: "Łódzkie", source: "FACEBOOK_GROUP", priority: "LOW", estimatedValue: 6000, stage: "New", createdDaysAgo: 5 },
-  { name: "Paweł Jankowski", email: "p.jankowski@buildpro.pl", phone: "+48 692 551 770", position: "Director", companyName: "BuildPro", industry: "Construction", region: "Mazowieckie", source: "EVENT", priority: "HIGH", budget: 30000, estimatedValue: 36000, stage: "Qualified", lastContactedDays: 5, closeInDays: 35, createdDaysAgo: 16 },
-  { name: "Aleksandra Wojciechowska", email: "ola@petfoodlab.pl", position: "Marketing Lead", companyName: "PetFood Lab", industry: "Pet products", region: "Wielkopolskie", source: "WEBSITE", priority: "MEDIUM", budget: 14000, estimatedValue: 17000, stage: "Contacted", lastContactedDays: 7, createdDaysAgo: 11 },
-  { name: "Marek Kaczmarek", email: "m.kaczmarek@coldchain.pl", phone: "+48 600 121 343", position: "COO", companyName: "ColdChain Logistics", industry: "Logistics", region: "Pomorskie", source: "REFERRAL", priority: "HIGH", budget: 45000, estimatedValue: 50000, stage: "Proposal", lastContactedDays: 4, closeInDays: 22, createdDaysAgo: 21 },
-  { name: "Natalia Piotrowska", email: "n.piotrowska@aerofit.pl", position: "Founder", companyName: "AeroFit", industry: "Sports equipment", region: "Małopolskie", source: "ADS", priority: "MEDIUM", budget: 11000, estimatedValue: 13000, stage: "Qualified", lastContactedDays: 10, closeInDays: 50, createdDaysAgo: 17 },
-  { name: "Krzysztof Grabowski", email: "k.grabowski@vinomak.pl", position: "Owner", companyName: "VinoMak", industry: "Food & beverage", region: "Lubuskie", source: "COLD_OUTREACH", priority: "LOW", estimatedValue: 7000, stage: "New", createdDaysAgo: 2 },
-  { name: "Monika Zając", email: "m.zajac@printwave.pl", phone: "+48 511 884 220", position: "CMO", companyName: "PrintWave", industry: "Printing", region: "Śląskie", source: "LINKEDIN", priority: "MEDIUM", budget: 13000, estimatedValue: 15000, stage: "Contacted", lastContactedDays: 12, createdDaysAgo: 15 },
-  { name: "Łukasz Król", email: "l.krol@robotix.pl", phone: "+48 668 220 551", position: "CTO", companyName: "Robotix", industry: "Robotics", region: "Dolnośląskie", source: "INBOUND_FORM", priority: "HIGH", budget: 38000, estimatedValue: 44000, stage: "Negotiation", lastContactedDays: 3, closeInDays: 15, createdDaysAgo: 23, tags: ["warm"] },
-  { name: "Agnieszka Wróbel", email: "a.wrobel@ecohome.pl", position: "Director", companyName: "EcoHome", industry: "Home & garden", region: "Zachodniopomorskie", source: "MARKETPLACE", priority: "LOW", estimatedValue: 9000, stage: "New", createdDaysAgo: 4 },
+  { name: "Tomasz Wój­cik", email: "t.wojcik@stalmont.pl", phone: "+48 601 220 145", position: "Marketing Director", companyName: "Stalmont S.A.", industry: "Steel fabrication", region: "Śląskie", source: "REFERRAL", priority: "URGENT", budget: 60000, estimatedValue: 72000, stage: "Negocjacje", lastContactedDays: 1, closeInDays: 10, createdDaysAgo: 26, tags: ["enterprise", "warm"], note: "Prezes zachwycony konceptem leadów z targów. Chce umowy do końca miesiąca." },
+  { name: "Anna Kowalska", email: "anna@medexpo.eu", phone: "+48 512 880 332", position: "CEO", companyName: "MedExpo Group", industry: "Medical devices", region: "Mazowieckie", source: "INBOUND_FORM", priority: "HIGH", budget: 40000, estimatedValue: 48000, stage: "Oferta", lastContactedDays: 2, closeInDays: 21, createdDaysAgo: 19, tags: ["inbound"], note: "Wysłano ofertę v2. Decyzja po posiedzeniu zarządu." },
+  { name: "Piotr Nowak", email: "p.nowak@autoparts24.pl", phone: "+48 698 114 220", position: "Owner", companyName: "AutoParts24", industry: "Automotive", region: "Wielkopolskie", source: "EVENT", priority: "HIGH", budget: 25000, estimatedValue: 30000, stage: "Kwalifikacja", lastContactedDays: 4, closeInDays: 30, createdDaysAgo: 22 },
+  { name: "Katarzyna Lewandowska", email: "k.lewandowska@greenpack.pl", position: "Head of Sales", companyName: "GreenPack", industry: "Packaging", region: "Pomorskie", source: "WEBSITE", priority: "MEDIUM", budget: 15000, estimatedValue: 18000, stage: "Kontakt", lastContactedDays: 6, createdDaysAgo: 14 },
+  { name: "Michał Zieliński", email: "michal@brewtech.io", phone: "+48 660 778 901", position: "Founder", companyName: "BrewTech", industry: "Food & beverage", region: "Małopolskie", source: "LINKEDIN", priority: "MEDIUM", budget: 12000, estimatedValue: 16000, stage: "Kwalifikacja", lastContactedDays: 8, closeInDays: 40, createdDaysAgo: 18 },
+  { name: "Magdalena Wiśniewska", email: "m.wisniewska@furnipol.pl", position: "CMO", companyName: "FurniPol", industry: "Furniture", region: "Kujawsko-Pomorskie", source: "REFERRAL", priority: "HIGH", budget: 35000, estimatedValue: 42000, stage: "Oferta", lastContactedDays: 3, closeInDays: 18, createdDaysAgo: 20, tags: ["warm"] },
+  { name: "Robert Kamiński", email: "r.kaminski@hydroflex.pl", phone: "+48 605 332 118", position: "Procurement", companyName: "HydroFlex", industry: "Industrial equipment", region: "Dolnośląskie", source: "COLD_OUTREACH", priority: "LOW", estimatedValue: 8000, stage: "Nowy", createdDaysAgo: 3 },
+  { name: "Ewa Dąbrowska", email: "ewa@cleanlab.pl", position: "Lab Manager", companyName: "CleanLab", industry: "Chemicals", region: "Łódzkie", source: "MARKETPLACE", priority: "MEDIUM", budget: 10000, estimatedValue: 14000, stage: "Kontakt", lastContactedDays: 9, createdDaysAgo: 12 },
+  { name: "Grzegorz Mazur", email: "g.mazur@solartech.pl", phone: "+48 514 009 887", position: "CEO", companyName: "SolarTech", industry: "Renewable energy", region: "Podkarpackie", source: "INBOUND_FORM", priority: "URGENT", budget: 55000, estimatedValue: 65000, stage: "Negocjacje", lastContactedDays: 2, closeInDays: 12, createdDaysAgo: 24, tags: ["enterprise", "hot"], note: "Budżet zatwierdzony. Domykamy zakres abonamentu." },
+  { name: "Joanna Krawczyk", email: "j.krawczyk@texstyle.pl", position: "Brand Manager", companyName: "TexStyle", industry: "Textiles", region: "Łódzkie", source: "FACEBOOK_GROUP", priority: "LOW", estimatedValue: 6000, stage: "Nowy", createdDaysAgo: 5 },
+  { name: "Paweł Jankowski", email: "p.jankowski@buildpro.pl", phone: "+48 692 551 770", position: "Director", companyName: "BuildPro", industry: "Construction", region: "Mazowieckie", source: "EVENT", priority: "HIGH", budget: 30000, estimatedValue: 36000, stage: "Kwalifikacja", lastContactedDays: 5, closeInDays: 35, createdDaysAgo: 16 },
+  { name: "Aleksandra Wojciechowska", email: "ola@petfoodlab.pl", position: "Marketing Lead", companyName: "PetFood Lab", industry: "Pet products", region: "Wielkopolskie", source: "WEBSITE", priority: "MEDIUM", budget: 14000, estimatedValue: 17000, stage: "Kontakt", lastContactedDays: 7, createdDaysAgo: 11 },
+  { name: "Marek Kaczmarek", email: "m.kaczmarek@coldchain.pl", phone: "+48 600 121 343", position: "COO", companyName: "ColdChain Logistics", industry: "Logistics", region: "Pomorskie", source: "REFERRAL", priority: "HIGH", budget: 45000, estimatedValue: 50000, stage: "Oferta", lastContactedDays: 4, closeInDays: 22, createdDaysAgo: 21 },
+  { name: "Natalia Piotrowska", email: "n.piotrowska@aerofit.pl", position: "Founder", companyName: "AeroFit", industry: "Sports equipment", region: "Małopolskie", source: "ADS", priority: "MEDIUM", budget: 11000, estimatedValue: 13000, stage: "Kwalifikacja", lastContactedDays: 10, closeInDays: 50, createdDaysAgo: 17 },
+  { name: "Krzysztof Grabowski", email: "k.grabowski@vinomak.pl", position: "Owner", companyName: "VinoMak", industry: "Food & beverage", region: "Lubuskie", source: "COLD_OUTREACH", priority: "LOW", estimatedValue: 7000, stage: "Nowy", createdDaysAgo: 2 },
+  { name: "Monika Zając", email: "m.zajac@printwave.pl", phone: "+48 511 884 220", position: "CMO", companyName: "PrintWave", industry: "Printing", region: "Śląskie", source: "LINKEDIN", priority: "MEDIUM", budget: 13000, estimatedValue: 15000, stage: "Kontakt", lastContactedDays: 12, createdDaysAgo: 15 },
+  { name: "Łukasz Król", email: "l.krol@robotix.pl", phone: "+48 668 220 551", position: "CTO", companyName: "Robotix", industry: "Robotics", region: "Dolnośląskie", source: "INBOUND_FORM", priority: "HIGH", budget: 38000, estimatedValue: 44000, stage: "Negocjacje", lastContactedDays: 3, closeInDays: 15, createdDaysAgo: 23, tags: ["warm"] },
+  { name: "Agnieszka Wróbel", email: "a.wrobel@ecohome.pl", position: "Director", companyName: "EcoHome", industry: "Home & garden", region: "Zachodniopomorskie", source: "MARKETPLACE", priority: "LOW", estimatedValue: 9000, stage: "Nowy", createdDaysAgo: 4 },
   // Won
-  { name: "Bartosz Szymański", email: "b.szymanski@megatools.pl", phone: "+48 602 990 110", position: "CEO", companyName: "MegaTools", industry: "Industrial equipment", region: "Śląskie", source: "REFERRAL", priority: "HIGH", budget: 50000, estimatedValue: 58000, stage: "Won", outcome: "WON", lastContactedDays: 14, createdDaysAgo: 60, tags: ["closed"], note: "Signed the full-funnel package. Kickoff next week." },
-  { name: "Karolina Lis", email: "k.lis@bioplast.pl", position: "Marketing Director", companyName: "BioPlast", industry: "Packaging", region: "Mazowieckie", source: "INBOUND_FORM", priority: "MEDIUM", budget: 28000, estimatedValue: 32000, stage: "Won", outcome: "WON", lastContactedDays: 20, createdDaysAgo: 75 },
-  { name: "Damian Olszewski", email: "d.olszewski@truckparts.pl", phone: "+48 696 110 442", position: "Owner", companyName: "TruckParts", industry: "Automotive", region: "Wielkopolskie", source: "EVENT", priority: "HIGH", budget: 42000, estimatedValue: 47000, stage: "Won", outcome: "WON", lastContactedDays: 28, createdDaysAgo: 90 },
+  { name: "Bartosz Szymański", email: "b.szymanski@megatools.pl", phone: "+48 602 990 110", position: "CEO", companyName: "MegaTools", industry: "Industrial equipment", region: "Śląskie", source: "REFERRAL", priority: "HIGH", budget: 50000, estimatedValue: 58000, stage: "Wygrany", outcome: "WON", lastContactedDays: 14, createdDaysAgo: 60, tags: ["closed"], note: "Podpisany pakiet full-funnel. Start w przyszłym tygodniu." },
+  { name: "Karolina Lis", email: "k.lis@bioplast.pl", position: "Marketing Director", companyName: "BioPlast", industry: "Packaging", region: "Mazowieckie", source: "INBOUND_FORM", priority: "MEDIUM", budget: 28000, estimatedValue: 32000, stage: "Wygrany", outcome: "WON", lastContactedDays: 20, createdDaysAgo: 75 },
+  { name: "Damian Olszewski", email: "d.olszewski@truckparts.pl", phone: "+48 696 110 442", position: "Owner", companyName: "TruckParts", industry: "Automotive", region: "Wielkopolskie", source: "EVENT", priority: "HIGH", budget: 42000, estimatedValue: 47000, stage: "Wygrany", outcome: "WON", lastContactedDays: 28, createdDaysAgo: 90 },
   // Lost
-  { name: "Sylwia Adamczyk", email: "s.adamczyk@quickfit.pl", position: "CMO", companyName: "QuickFit", industry: "Sports equipment", region: "Łódzkie", source: "ADS", priority: "LOW", estimatedValue: 10000, stage: "Lost", outcome: "LOST", lastContactedDays: 35, createdDaysAgo: 70, note: "Went with an in-house hire instead." },
-  { name: "Rafał Pawlak", email: "r.pawlak@oldtimer.pl", position: "Director", companyName: "OldTimer Restorations", industry: "Automotive", region: "Małopolskie", source: "COLD_OUTREACH", priority: "LOW", estimatedValue: 8000, stage: "Lost", outcome: "LOST", lastContactedDays: 45, createdDaysAgo: 80 },
+  { name: "Sylwia Adamczyk", email: "s.adamczyk@quickfit.pl", position: "CMO", companyName: "QuickFit", industry: "Sports equipment", region: "Łódzkie", source: "ADS", priority: "LOW", estimatedValue: 10000, stage: "Przegrany", outcome: "LOST", lastContactedDays: 35, createdDaysAgo: 70, note: "Wybrali zatrudnienie osoby na etat." },
+  { name: "Rafał Pawlak", email: "r.pawlak@oldtimer.pl", position: "Director", companyName: "OldTimer Restorations", industry: "Automotive", region: "Małopolskie", source: "COLD_OUTREACH", priority: "LOW", estimatedValue: 8000, stage: "Przegrany", outcome: "LOST", lastContactedDays: 45, createdDaysAgo: 80 },
 ];
 
 async function main() {
@@ -378,7 +378,7 @@ async function main() {
   }
 
   // Tasks
-  const negLeads = createdLeads.filter((l) => l.stage === "Negotiation" || l.stage === "Proposal");
+  const negLeads = createdLeads.filter((l) => l.stage === "Negocjacje" || l.stage === "Oferta");
   await prisma.task.createMany({
     data: [
       { companyId: company.id, assigneeId: owner.id, leadId: negLeads[0]?.id, title: `Send contract to ${negLeads[0]?.name ?? "lead"}`, priority: "URGENT", status: "TODO", dueDate: daysAgo(1) },
@@ -562,10 +562,10 @@ async function main() {
       audienceId: audManufacturers.id,
       steps: {
         create: [
-          { order: 1, dayOffset: 0, channel: "EMAIL", kind: "EMAIL", name: "Intro email", prompt: "First-touch cold email. Open with relevance to their context/signals, one specific value point, soft CTA. Under 110 words." },
-          { order: 2, dayOffset: 2, channel: "EMAIL", kind: "FOLLOW_UP", name: "Value bump", prompt: "Short follow-up. One new proof point, single soft CTA. Under 60 words." },
-          { order: 3, dayOffset: 3, channel: "LINKEDIN", kind: "DM", name: "LinkedIn touch", prompt: "Friendly LinkedIn DM, same value point, one qualifying question." },
-          { order: 4, dayOffset: 4, channel: "EMAIL", kind: "FOLLOW_UP", name: "Break-up", prompt: "Polite break-up email. Leave the door open. Under 70 words." },
+          { order: 1, dayOffset: 0, channel: "EMAIL", kind: "EMAIL", name: "E-mail otwierający", prompt: "First-touch cold email. Open with relevance to their context/signals, one specific value point, soft CTA. Under 110 words." },
+          { order: 2, dayOffset: 2, channel: "EMAIL", kind: "FOLLOW_UP", name: "Dobicie z wartością", prompt: "Short follow-up. One new proof point, single soft CTA. Under 60 words." },
+          { order: 3, dayOffset: 3, channel: "LINKEDIN", kind: "DM", name: "Kontakt LinkedIn", prompt: "Friendly LinkedIn DM, same value point, one qualifying question." },
+          { order: 4, dayOffset: 4, channel: "EMAIL", kind: "FOLLOW_UP", name: "Pożegnalny", prompt: "Polite break-up email. Leave the door open. Under 70 words." },
         ],
       },
     },
@@ -614,11 +614,11 @@ async function main() {
       phone: "+48 512 304 776", industry: "fryzjer", region: "Warszawa",
       source: "GOOGLE_MAPS", sourceDetail: "Google Places",
       priority: "HIGH", score: 62, scoreGrade: "B",
-      stageId: stageByName.get("Contacted"),
+      stageId: stageByName.get("Kontakt"),
       tags: ["local-business", "no-website"],
       hasWebsite: false, callStatus: "INTERESTED", callAttempts: 2,
       lastCallAt: daysAgo(1), lastContactedAt: daysAgo(1),
-      nextActionAt: daysFromNow(2), nextActionNote: "Send the offer they asked for, then call Friday",
+      nextActionAt: daysFromNow(2), nextActionNote: "Wyślij ofertę, o którą prosili, potem telefon w piątek",
       createdAt: daysAgo(4),
     },
   });
@@ -627,7 +627,7 @@ async function main() {
       { companyId: company.id, leadId: noSiteLead.id, userId: owner.id, status: "NO_ANSWER", createdAt: daysAgo(3) },
       {
         companyId: company.id, leadId: noSiteLead.id, userId: owner.id, status: "INTERESTED",
-        note: "Spoke with the owner \u2014 no website, books everything by phone. Very interested in a simple site with online booking. Send offer by SMS/email, call back Friday.",
+        note: "Rozmowa z właścicielem \u2014 brak strony, wszystko umawia telefonicznie. Bardzo zainteresowany prostą stroną z rezerwacją online. Wysłać ofertę SMS/mailem, oddzwonić w piątek.",
         durationSec: 380, nextCallAt: daysFromNow(2), createdAt: daysAgo(1),
       },
     ],
@@ -641,10 +641,10 @@ async function main() {
       industry: "mechanik samochodowy", region: "Warszawa",
       source: "GOOGLE_MAPS", sourceDetail: "Google Places",
       priority: "MEDIUM", score: 48, scoreGrade: "C",
-      stageId: stageByName.get("New"),
+      stageId: stageByName.get("Nowy"),
       tags: ["local-business", "modernization"],
       hasWebsite: true, auditScore: 31, callStatus: "NOT_CALLED",
-      nextActionAt: daysFromNow(0), nextActionNote: "Call with audit findings (site loads 8.4s, no HTTPS)",
+      nextActionAt: daysFromNow(0), nextActionNote: "Zadzwoń z wynikami audytu (strona 8,4 s, brak HTTPS)",
       createdAt: daysAgo(2),
     },
   });

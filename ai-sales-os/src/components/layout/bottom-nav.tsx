@@ -7,10 +7,10 @@ import { useUiStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { label: "Home", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Leads", href: "/leads", icon: Users },
-  { label: "Calls", href: "/calls", icon: PhoneCall },
-  { label: "Finder", href: "/prospecting", icon: Radar },
+  { label: "Kokpit", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Leady", href: "/leads", icon: Users },
+  { label: "Telefony", href: "/calls", icon: PhoneCall },
+  { label: "Firmy", href: "/prospecting", icon: Radar },
 ] as const;
 
 /**

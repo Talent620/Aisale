@@ -22,18 +22,18 @@ export default async function CopilotPage() {
   ]);
 
   const greeting =
-    `Hi! I'm your sales copilot for ${company?.name ?? "your workspace"}. ` +
-    `Right now you have ${snapshot.totalLeads} leads (${snapshot.hotLeads} hot), ` +
-    `${snapshot.openTasks} open tasks${
-      snapshot.overdueTasks ? ` — ${snapshot.overdueTasks} overdue` : ""
-    }, and ${formatCurrency(snapshot.pipelineValue, snapshot.currency)} in the pipeline. ` +
-    `Ask me what to prioritise, and I'll reason over your live data.`;
+    `Cześć! Jestem Twoim copilotem sprzedaży dla ${company?.name ?? "Twojego workspace"}. ` +
+    `Masz obecnie ${snapshot.totalLeads} leadów (${snapshot.hotLeads} gorących), ` +
+    `${snapshot.openTasks} otwartych zadań${
+      snapshot.overdueTasks ? ` — ${snapshot.overdueTasks} po terminie` : ""
+    } oraz ${formatCurrency(snapshot.pipelineValue, snapshot.currency)} w lejku. ` +
+    `Zapytaj mnie, co priorytetyzować, a przeanalizuję Twoje dane na żywo.`;
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="AI Copilot"
-        description="Your always-on strategist — ask anything about your pipeline."
+        title="Copilot AI"
+        description="Twój zawsze dostępny strateg — zapytaj o cokolwiek dotyczącego Twojego lejka."
       />
       <CopilotClient greeting={greeting} />
     </div>

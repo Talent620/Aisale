@@ -53,7 +53,7 @@ export function CallPanel({
 
   async function save() {
     if (!status) {
-      toast.error("Pick a call outcome");
+      toast.error("Wybierz wynik rozmowy");
       return;
     }
     setSaving(true);
@@ -68,13 +68,13 @@ export function CallPanel({
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Call logged");
+      toast.success("Rozmowa zapisana");
       setStatus(null);
       setNote("");
       setNextCallAt("");
       router.refresh();
     } catch {
-      toast.error("Could not log the call");
+      toast.error("Nie udało się zapisać rozmowy");
     } finally {
       setSaving(false);
     }
@@ -84,7 +84,7 @@ export function CallPanel({
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle className="flex items-center gap-2">
-          <Phone className="h-4 w-4" /> Calls
+          <Phone className="h-4 w-4" /> Telefony
           <Badge variant="outline" className={meta.className}>
             {meta.label}
           </Badge>
@@ -92,7 +92,7 @@ export function CallPanel({
         {phone ? (
           <Button asChild variant="outline" size="sm">
             <a href={`tel:${phone.replace(/\s+/g, "")}`}>
-              <Phone className="h-4 w-4" /> Call {phone}
+              <Phone className="h-4 w-4" /> Zadzwoń {phone}
             </a>
           </Button>
         ) : null}
@@ -115,17 +115,17 @@ export function CallPanel({
             </div>
             <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
               <div className="space-y-1.5">
-                <Label htmlFor="call-note">Note — where did the call land, what do you know?</Label>
+                <Label htmlFor="call-note">Notatka — gdzie stanęła rozmowa, co wiesz?</Label>
                 <Textarea
                   id="call-note"
                   rows={2}
-                  placeholder="e.g. Spoke with the owner — wants the audit by email, call again on Friday…"
+                  placeholder="np. Rozmowa z właścicielem — chce audyt mailem, oddzwonić w piątek…"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="call-next">Next call</Label>
+                <Label htmlFor="call-next">Następny telefon</Label>
                 <Input
                   id="call-next"
                   type="datetime-local"
@@ -136,12 +136,12 @@ export function CallPanel({
             </div>
             <div className="flex justify-end">
               <Button size="sm" onClick={save} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save call
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Zapisz rozmowę
               </Button>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No phone number on this lead.</p>
+          <p className="text-sm text-muted-foreground">Ten lead nie ma numeru telefonu.</p>
         )}
 
         {calls.length > 0 ? (

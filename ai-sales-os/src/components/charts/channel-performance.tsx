@@ -54,7 +54,7 @@ export function ChannelPerformance({
   async function saveCost() {
     const value = Number(amount);
     if (!Number.isFinite(value) || value < 0) {
-      toast.error("Enter the spend amount");
+      toast.error("Podaj kwotę wydatku");
       return;
     }
     setSaving(true);
@@ -65,11 +65,11 @@ export function ChannelPerformance({
         body: JSON.stringify({ source, month, amount: Math.round(value) }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Channel spend saved");
+      toast.success("Wydatek zapisany");
       setAmount("");
       router.refresh();
     } catch {
-      toast.error("Could not save the spend");
+      toast.error("Nie udało się zapisać wydatku");
     } finally {
       setSaving(false);
     }
@@ -79,7 +79,7 @@ export function ChannelPerformance({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <Coins className="h-4 w-4" /> Channel performance — last 90 days
+          <Coins className="h-4 w-4" /> Skuteczność kanałów — ostatnie 90 dni
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -87,20 +87,20 @@ export function ChannelPerformance({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="py-2 pr-3 font-medium">Channel</th>
-                <th className="py-2 pr-3 text-right font-medium">Leads</th>
-                <th className="py-2 pr-3 text-right font-medium">Won</th>
-                <th className="py-2 pr-3 text-right font-medium">Conversion</th>
-                <th className="py-2 pr-3 text-right font-medium">Spend</th>
+                <th className="py-2 pr-3 font-medium">Kanał</th>
+                <th className="py-2 pr-3 text-right font-medium">Leady</th>
+                <th className="py-2 pr-3 text-right font-medium">Wygrane</th>
+                <th className="py-2 pr-3 text-right font-medium">Konwersja</th>
+                <th className="py-2 pr-3 text-right font-medium">Wydatek</th>
                 <th className="py-2 pr-3 text-right font-medium">CPL</th>
-                <th className="py-2 text-right font-medium">Cost / won</th>
+                <th className="py-2 text-right font-medium">Koszt / wygrana</th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-6 text-center text-muted-foreground">
-                    No lead data in this window yet.
+                    Brak danych o leadach w tym okresie.
                   </td>
                 </tr>
               ) : (
@@ -124,7 +124,7 @@ export function ChannelPerformance({
 
         <div className="flex flex-wrap items-end gap-2 rounded-md border border-border bg-muted/30 p-3">
           <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Channel</p>
+            <p className="text-xs text-muted-foreground">Kanał</p>
             <Select value={source} onValueChange={(v) => setSource(v as LeadSource)}>
               <SelectTrigger className="w-44">
                 <SelectValue />
@@ -139,26 +139,25 @@ export function ChannelPerformance({
             </Select>
           </div>
           <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Month</p>
+            <p className="text-xs text-muted-foreground">Miesiąc</p>
             <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40" />
           </div>
           <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Spend ({currency})</p>
+            <p className="text-xs text-muted-foreground">Wydatek ({currency})</p>
             <Input
               type="number"
               min={0}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="e.g. 1500"
+              placeholder="np. 1500"
               className="w-32"
             />
           </div>
           <Button size="sm" onClick={saveCost} disabled={saving}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save spend
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Zapisz wydatek
           </Button>
           <p className="basis-full text-[11px] text-muted-foreground">
-            Enter what you spend per channel monthly (ads, tools, time) — CPL and cost-per-won update
-            instantly.
+            Wpisuj miesięczne wydatki na kanał (reklamy, narzędzia, czas) — CPL i koszt na wygraną przeliczą się od razu.
           </p>
         </div>
       </CardContent>

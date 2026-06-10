@@ -25,33 +25,33 @@ export interface NavItem {
 
 export const NAV_GROUPS: { heading: string; items: NavItem[] }[] = [
   {
-    heading: "Workspace",
+    heading: "Praca",
     items: [
-      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { label: "Leads", href: "/leads", icon: Users },
-      { label: "Pipeline", href: "/pipeline", icon: KanbanSquare },
-      { label: "Calls", href: "/calls", icon: PhoneCall },
-      { label: "Tasks", href: "/tasks", icon: CheckSquare },
+      { label: "Kokpit", href: "/dashboard", icon: LayoutDashboard },
+      { label: "Leady", href: "/leads", icon: Users },
+      { label: "Lejek", href: "/pipeline", icon: KanbanSquare },
+      { label: "Telefony", href: "/calls", icon: PhoneCall },
+      { label: "Zadania", href: "/tasks", icon: CheckSquare },
     ],
   },
   {
-    heading: "Acquisition",
+    heading: "Pozyskiwanie",
     items: [
-      { label: "Lead Finder", href: "/prospecting", icon: Radar },
+      { label: "Szukaj firm", href: "/prospecting", icon: Radar },
       { label: "Autopilot", href: "/acquisition", icon: Magnet },
       { label: "Social Studio", href: "/social", icon: Share2 },
-      { label: "Campaigns", href: "/campaigns", icon: Megaphone },
+      { label: "Kampanie", href: "/campaigns", icon: Megaphone },
       { label: "Generator", href: "/generator", icon: Sparkles },
-      { label: "Templates", href: "/templates", icon: LibraryBig },
-      { label: "Approvals", href: "/approvals", icon: BadgeCheck },
+      { label: "Szablony", href: "/templates", icon: LibraryBig },
+      { label: "Akceptacje", href: "/approvals", icon: BadgeCheck },
     ],
   },
   {
-    heading: "Intelligence",
+    heading: "Analiza",
     items: [
-      { label: "Analytics", href: "/analytics", icon: BarChart3 },
-      { label: "AI Copilot", href: "/copilot", icon: Bot },
-      { label: "Settings", href: "/settings", icon: Settings },
+      { label: "Analityka", href: "/analytics", icon: BarChart3 },
+      { label: "Copilot AI", href: "/copilot", icon: Bot },
+      { label: "Ustawienia", href: "/settings", icon: Settings },
     ],
   },
 ];

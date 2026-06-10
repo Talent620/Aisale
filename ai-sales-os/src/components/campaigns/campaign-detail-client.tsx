@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { pl } from "date-fns/locale";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -100,8 +101,26 @@ const STATUS_VARIANT: Record<
   ARCHIVED: "outline",
 };
 
-function label(s: string) {
-  return s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, " ");
+const CHANNEL_LABELS: Record<CampaignChannel, string> = {
+  EMAIL: "E-mail",
+  LINKEDIN: "LinkedIn",
+  FACEBOOK: "Facebook",
+  INSTAGRAM: "Instagram",
+  COLD_CALL: "Zimne telefony",
+  MULTI: "Wiele kanałów",
+};
+
+const STATUS_LABELS: Record<CampaignStatus, string> = {
+  DRAFT: "Szkic",
+  ACTIVE: "Aktywna",
+  PAUSED: "Wstrzymana",
+  COMPLETED: "Zakończona",
+  ARCHIVED: "Zarchiwizowana",
+};
+
+/** Polish plural form for "lead" after a numeral (genitive context). */
+function leadsWord(n: number) {
+  return n === 1 ? "leada" : "leadów";
 }
 
 export function CampaignDetailClient({
@@ -130,10 +149,10 @@ export function CampaignDetailClient({
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error();
-      toast.success(`Status: ${label(status)}`);
+      toast.success(`Status: ${STATUS_LABELS[status]}`);
       router.refresh();
     } catch {
-      toast.error("Could not update status");
+      toast.error("Nie udało się zaktualizować statusu");
     } finally {
       setStatusBusy(false);
     }
@@ -150,13 +169,13 @@ export function CampaignDetailClient({
       if (!res.ok) throw new Error();
       const data: { capped?: boolean } = await res.json();
       if (data.capped) {
-        toast.info(`Can't exceed ${campaign.sentCount} sent. Send the campaign to more leads first.`);
+        toast.info(`Nie można przekroczyć liczby wysłanych (${campaign.sentCount}). Najpierw wyślij kampanię do większej liczby leadów.`);
       } else {
-        toast.success(event === "reply" ? "Reply recorded" : "Conversion recorded");
+        toast.success(event === "reply" ? "Odpowiedź zapisana" : "Konwersja zapisana");
         router.refresh();
       }
     } catch {
-      toast.error("Could not record that");
+      toast.error("Nie udało się tego zapisać");
     } finally {
       setTrackBusy(null);
     }
@@ -169,16 +188,16 @@ export function CampaignDetailClient({
           href="/campaigns"
           className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" /> Campaigns
+          <ArrowLeft className="h-4 w-4" /> Kampanie
         </Link>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h1 className="font-display text-2xl font-semibold tracking-tight">{campaign.name}</h1>
-              <Badge variant={STATUS_VARIANT[campaign.status]}>{label(campaign.status)}</Badge>
+              <Badge variant={STATUS_VARIANT[campaign.status]}>{STATUS_LABELS[campaign.status]}</Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              {label(campaign.channel)}
+              {CHANNEL_LABELS[campaign.channel]}
               {campaign.audience ? ` · ${campaign.audience.name}` : ""}
               {campaign.offer ? ` · ${campaign.offer.name}` : ""}
             </p>
@@ -194,7 +213,7 @@ export function CampaignDetailClient({
               <SelectContent>
                 {STATUSES.map((s) => (
                   <SelectItem key={s} value={s}>
-                    {label(s)}
+                    {STATUS_LABELS[s]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -211,32 +230,32 @@ export function CampaignDetailClient({
 
       {/* Performance */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Sent" value={campaign.sentCount} icon={Mail} />
-        <StatCard label="Replies" value={campaign.repliedCount} icon={MessageSquareReply} hint={`${replyRate}% reply rate`} />
-        <StatCard label="Conversions" value={campaign.convertedCount} icon={Trophy} hint={`${convRate}% conversion`} />
-        <StatCard label="Messages" value={campaign.messages.length} icon={MessageSquareReply} />
+        <StatCard label="Wysłano" value={campaign.sentCount} icon={Mail} />
+        <StatCard label="Odpowiedzi" value={campaign.repliedCount} icon={MessageSquareReply} hint={`${replyRate}% odpowiedzi`} />
+        <StatCard label="Konwersje" value={campaign.convertedCount} icon={Trophy} hint={`${convRate}% konwersji`} />
+        <StatCard label="Wiadomości" value={campaign.messages.length} icon={MessageSquareReply} />
       </div>
 
       {/* Quick tracking */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-muted-foreground">Log outcomes:</span>
+        <span className="text-sm text-muted-foreground">Zapisz wyniki:</span>
         <Button variant="outline" size="sm" onClick={() => track("reply")} disabled={trackBusy !== null || campaign.sentCount === 0}>
           {trackBusy === "reply" ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquareReply className="h-4 w-4" />}
-          Record reply
+          Zapisz odpowiedź
         </Button>
         <Button variant="outline" size="sm" onClick={() => track("conversion")} disabled={trackBusy !== null || campaign.sentCount === 0}>
           {trackBusy === "conversion" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trophy className="h-4 w-4" />}
-          Record conversion
+          Zapisz konwersję
         </Button>
         {campaign.sentCount === 0 ? (
-          <span className="text-xs text-muted-foreground">Send the campaign to start tracking replies.</span>
+          <span className="text-xs text-muted-foreground">Wyślij kampanię, aby zacząć śledzić odpowiedzi.</span>
         ) : null}
       </div>
 
       {/* Messages */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold">Messages</h2>
+          <h2 className="font-display text-lg font-semibold">Wiadomości</h2>
           <div className="flex gap-2">
             <ManualMessageDialog campaignId={campaign.id} channel={campaign.channel} onDone={() => router.refresh()} />
             <GenerateMessageDialog
@@ -251,9 +270,9 @@ export function CampaignDetailClient({
           <Card>
             <CardContent className="flex flex-col items-center gap-2 py-10 text-center">
               <Sparkles className="h-6 w-6 text-muted-foreground" />
-              <p className="text-sm font-medium">No messages yet</p>
+              <p className="text-sm font-medium">Brak wiadomości</p>
               <p className="max-w-sm text-sm text-muted-foreground">
-                Generate a draft with AI or add one manually, then send the campaign to your audience.
+                Wygeneruj szkic z pomocą AI lub dodaj wiadomość ręcznie, a następnie wyślij kampanię do swojej grupy docelowej.
               </p>
             </CardContent>
           </Card>
@@ -271,13 +290,13 @@ export function CampaignDetailClient({
                     ) : null}
                     {m.sentAt ? (
                       <Badge variant="success" className="gap-1">
-                        <CheckCircle2 className="h-3 w-3" /> Sent
+                        <CheckCircle2 className="h-3 w-3" /> Wysłano
                       </Badge>
                     ) : m.approved ? (
-                      <Badge variant="outline">Ready</Badge>
+                      <Badge variant="outline">Gotowa</Badge>
                     ) : (
                       <Badge variant="warning" className="gap-1">
-                        <Clock className="h-3 w-3" /> Awaiting approval
+                        <Clock className="h-3 w-3" /> Czeka na akceptację
                       </Badge>
                     )}
                   </div>
@@ -287,8 +306,8 @@ export function CampaignDetailClient({
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {m.sentAt
-                      ? `Sent ${formatDistanceToNow(new Date(m.sentAt), { addSuffix: true })}`
-                      : `Created ${formatDistanceToNow(new Date(m.createdAt), { addSuffix: true })}`}
+                      ? `Wysłano ${formatDistanceToNow(new Date(m.sentAt), { addSuffix: true, locale: pl })}`
+                      : `Utworzono ${formatDistanceToNow(new Date(m.createdAt), { addSuffix: true, locale: pl })}`}
                   </p>
                 </CardContent>
               </Card>
@@ -347,13 +366,13 @@ function SendDialog({
       const data: { recipients: number } = await res.json();
       toast.success(
         data.recipients > 0
-          ? `Sent to ${data.recipients} lead${data.recipients === 1 ? "" : "s"}`
-          : "No matching leads to send to yet",
+          ? `Wysłano do ${data.recipients} ${leadsWord(data.recipients)}`
+          : "Brak pasujących leadów do wysyłki",
       );
       setOpen(false);
       onDone();
     } catch {
-      toast.error("Could not send the campaign");
+      toast.error("Nie udało się wysłać kampanii");
     } finally {
       setSending(false);
     }
@@ -363,26 +382,26 @@ function SendDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button disabled={disabled}>
-          <Send className="mr-1.5 h-4 w-4" /> Send
+          <Send className="mr-1.5 h-4 w-4" /> Wyślij
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Send this campaign?</DialogTitle>
+          <DialogTitle>Wysłać tę kampanię?</DialogTitle>
           <DialogDescription>
-            This will record outreach against <strong>{recipientEstimate}</strong> matching open
-            lead{recipientEstimate === 1 ? "" : "s"} — logging activity, stamping approved messages
-            as sent and updating your counters. No external email is sent unless a channel
-            integration is connected.
+            Outreach zostanie zapisany dla <strong>{recipientEstimate}</strong> pasujących otwartych{" "}
+            {leadsWord(recipientEstimate)} — dodamy aktywność, oznaczymy zatwierdzone wiadomości
+            jako wysłane i zaktualizujemy liczniki. Żaden zewnętrzny e-mail nie zostanie wysłany,
+            dopóki nie podłączysz integracji kanału.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={sending}>
-            Cancel
+            Anuluj
           </Button>
           <Button onClick={send} disabled={sending}>
             {sending ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Send className="mr-1.5 h-4 w-4" />}
-            Send now
+            Wyślij teraz
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -426,15 +445,15 @@ function GenerateMessageDialog({
       const data: { fallback?: boolean } = await res.json();
       toast.success(
         createApproval
-          ? `Draft generated${data.fallback ? " (mock)" : ""} — sent for approval`
-          : `Draft generated${data.fallback ? " (mock)" : ""}`,
+          ? `Szkic wygenerowany${data.fallback ? " (tryb demo)" : ""} — przekazano do akceptacji`
+          : `Szkic wygenerowany${data.fallback ? " (tryb demo)" : ""}`,
       );
       setPrompt("");
       setTone("");
       setOpen(false);
       onDone();
     } catch {
-      toast.error("Could not generate the message");
+      toast.error("Nie udało się wygenerować wiadomości");
     } finally {
       setBusy(false);
     }
@@ -444,21 +463,21 @@ function GenerateMessageDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm">
-          <Sparkles className="mr-1.5 h-4 w-4" /> Generate with AI
+          <Sparkles className="mr-1.5 h-4 w-4" /> Generuj z AI
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Generate a message</DialogTitle>
+          <DialogTitle>Wygeneruj wiadomość</DialogTitle>
           <DialogDescription>
-            AI drafts using this campaign&apos;s goal, channel and offer. Works in mock mode without
-            an API key.
+            AI tworzy szkic na podstawie celu, kanału i oferty tej kampanii. Działa w trybie demo
+            bez klucza API.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Type</Label>
+              <Label>Typ</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as ContentKind)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -473,13 +492,13 @@ function GenerateMessageDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Offer</Label>
+              <Label>Oferta</Label>
               <Select value={offerId} onValueChange={setOfferId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Campaign default" />
+                  <SelectValue placeholder="Domyślna z kampanii" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>Campaign default</SelectItem>
+                  <SelectItem value={NONE}>Domyślna z kampanii</SelectItem>
                   {offers.map((o) => (
                     <SelectItem key={o.id} value={o.id}>
                       {o.name}
@@ -490,22 +509,22 @@ function GenerateMessageDialog({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="g-tone">Tone</Label>
+            <Label htmlFor="g-tone">Ton</Label>
             <Input
               id="g-tone"
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              placeholder="Direct, warm, consultative…"
+              placeholder="Bezpośredni, ciepły, doradczy…"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="g-prompt">Extra instructions</Label>
+            <Label htmlFor="g-prompt">Dodatkowe wskazówki</Label>
             <Textarea
               id="g-prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               rows={3}
-              placeholder="Leave blank to use the campaign goal."
+              placeholder="Zostaw puste, aby użyć celu kampanii."
             />
           </div>
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -515,16 +534,16 @@ function GenerateMessageDialog({
               onChange={(e) => setCreateApproval(e.target.checked)}
               className="h-4 w-4 rounded border-border"
             />
-            Send to approvals queue before it counts as ready
+            Przekaż do kolejki akceptacji, zanim wiadomość będzie gotowa do wysyłki
           </label>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            Cancel
+            Anuluj
           </Button>
           <Button onClick={submit} disabled={busy}>
             {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1.5 h-4 w-4" />}
-            Generate
+            Generuj
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -549,7 +568,7 @@ function ManualMessageDialog({
 
   async function submit() {
     if (body.trim().length === 0) {
-      toast.error("Message body is required");
+      toast.error("Treść wiadomości jest wymagana");
       return;
     }
     setBusy(true);
@@ -565,13 +584,13 @@ function ManualMessageDialog({
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Message added");
+      toast.success("Wiadomość dodana");
       setSubject("");
       setBody("");
       setOpen(false);
       onDone();
     } catch {
-      toast.error("Could not add the message");
+      toast.error("Nie udało się dodać wiadomości");
     } finally {
       setBusy(false);
     }
@@ -581,16 +600,16 @@ function ManualMessageDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
-          <Plus className="mr-1.5 h-4 w-4" /> Add manually
+          <Plus className="mr-1.5 h-4 w-4" /> Dodaj ręcznie
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add a message</DialogTitle>
+          <DialogTitle>Dodaj wiadomość</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Type</Label>
+            <Label>Typ</Label>
             <Select value={kind} onValueChange={(v) => setKind(v as ContentKind)}>
               <SelectTrigger>
                 <SelectValue />
@@ -606,22 +625,22 @@ function ManualMessageDialog({
           </div>
           {kind === "EMAIL" ? (
             <div className="space-y-1.5">
-              <Label htmlFor="m-subject">Subject</Label>
+              <Label htmlFor="m-subject">Temat</Label>
               <Input id="m-subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
             </div>
           ) : null}
           <div className="space-y-1.5">
-            <Label htmlFor="m-body">Message</Label>
+            <Label htmlFor="m-body">Wiadomość</Label>
             <Textarea id="m-body" value={body} onChange={(e) => setBody(e.target.value)} rows={6} />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
-            Cancel
+            Anuluj
           </Button>
           <Button onClick={submit} disabled={busy || body.trim().length === 0}>
             {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
-            Add message
+            Dodaj wiadomość
           </Button>
         </DialogFooter>
       </DialogContent>

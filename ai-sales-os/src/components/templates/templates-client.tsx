@@ -53,9 +53,24 @@ const KINDS: TemplateKind[] = [
   "SUBJECT_LINE",
 ];
 
-function label(s: string) {
-  return s.charAt(0) + s.slice(1).toLowerCase().replace("_", " ");
-}
+const KIND_LABELS: Record<TemplateKind, string> = {
+  EMAIL: "E-mail",
+  DM: "Wiadomość prywatna (DM)",
+  AD: "Reklama",
+  FOLLOW_UP: "Follow-up",
+  POST: "Post",
+  OFFER: "Oferta",
+  SUBJECT_LINE: "Temat e-maila",
+};
+
+const CHANNEL_LABELS: Record<CampaignChannel, string> = {
+  EMAIL: "E-mail",
+  LINKEDIN: "LinkedIn",
+  FACEBOOK: "Facebook",
+  INSTAGRAM: "Instagram",
+  COLD_CALL: "Zimne telefony",
+  MULTI: "Wiele kanałów",
+};
 
 export function TemplatesClient() {
   const [items, setItems] = useState<TemplateRow[]>([]);
@@ -91,8 +106,8 @@ export function TemplatesClient() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Templates"
-        description="Reusable, on-brand building blocks for your outreach."
+        title="Szablony"
+        description="Gotowe, spójne z marką elementy do wielokrotnego użycia w outreachu."
       >
         <CreateTemplateDialog onCreated={load} />
       </PageHeader>
@@ -108,8 +123,8 @@ export function TemplatesClient() {
       ) : items.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="No templates yet"
-          description="Save your best-performing messages as templates to reuse them fast."
+          title="Brak szablonów"
+          description="Zapisz najskuteczniejsze wiadomości jako szablony, aby szybko z nich korzystać."
           action={<CreateTemplateDialog onCreated={load} />}
         />
       ) : (
@@ -126,10 +141,10 @@ export function TemplatesClient() {
                       <p className="truncate text-sm font-medium">{t.name}</p>
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                      <Badge variant="secondary">{label(t.kind)}</Badge>
+                      <Badge variant="secondary">{KIND_LABELS[t.kind]}</Badge>
                       {t.channel ? (
                         <span className="text-xs text-muted-foreground">
-                          {label(t.channel)}
+                          {CHANNEL_LABELS[t.channel]}
                         </span>
                       ) : null}
                     </div>
@@ -144,7 +159,7 @@ export function TemplatesClient() {
                 </div>
                 {t.subject ? (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">Subject: </span>
+                    <span className="text-muted-foreground">Temat: </span>
                     {t.subject}
                   </p>
                 ) : null}
@@ -182,11 +197,11 @@ function CreateTemplateDialog({ onCreated }: { onCreated: () => void }) {
 
   async function submit() {
     if (name.trim().length < 2) {
-      toast.error("Please enter a template name");
+      toast.error("Podaj nazwę szablonu");
       return;
     }
     if (body.trim().length < 1) {
-      toast.error("Template body cannot be empty");
+      toast.error("Treść szablonu nie może być pusta");
       return;
     }
     setSaving(true);
@@ -202,7 +217,7 @@ function CreateTemplateDialog({ onCreated }: { onCreated: () => void }) {
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Template saved");
+      toast.success("Szablon zapisany");
       setName("");
       setKind("EMAIL");
       setSubject("");
@@ -210,7 +225,7 @@ function CreateTemplateDialog({ onCreated }: { onCreated: () => void }) {
       setOpen(false);
       onCreated();
     } catch {
-      toast.error("Could not save template");
+      toast.error("Nie udało się zapisać szablonu");
     } finally {
       setSaving(false);
     }
@@ -221,26 +236,26 @@ function CreateTemplateDialog({ onCreated }: { onCreated: () => void }) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-1.5 h-4 w-4" />
-          New template
+          Nowy szablon
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New template</DialogTitle>
+          <DialogTitle>Nowy szablon</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-[1fr_160px] gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="t-name">Name</Label>
+              <Label htmlFor="t-name">Nazwa</Label>
               <Input
                 id="t-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Intro email — manufacturers"
+                placeholder="E-mail wprowadzający — firmy produkcyjne"
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Type</Label>
+              <Label>Typ</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as TemplateKind)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -248,7 +263,7 @@ function CreateTemplateDialog({ onCreated }: { onCreated: () => void }) {
                 <SelectContent>
                   {KINDS.map((k) => (
                     <SelectItem key={k} value={k}>
-                      {label(k)}
+                      {KIND_LABELS[k]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -256,35 +271,35 @@ function CreateTemplateDialog({ onCreated }: { onCreated: () => void }) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-subject">Subject (optional)</Label>
+            <Label htmlFor="t-subject">Temat (opcjonalnie)</Label>
             <Input
               id="t-subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="A quick idea for {{company}}"
+              placeholder="Szybki pomysł dla {{company}}"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-body">Body</Label>
+            <Label htmlFor="t-body">Treść</Label>
             <Textarea
               id="t-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder={"Hi {{name}},\n\n…"}
+              placeholder={"Cześć {{name}},\n\n…"}
               rows={6}
             />
             <p className="text-xs text-muted-foreground">
-              Use {"{{name}}"}, {"{{company}}"} etc. as placeholders.
+              Używaj {"{{name}}"}, {"{{company}}"} itp. jako zmiennych.
             </p>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)} disabled={saving}>
-            Cancel
+            Anuluj
           </Button>
           <Button onClick={submit} disabled={saving}>
             {saving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
-            Save template
+            Zapisz szablon
           </Button>
         </DialogFooter>
       </DialogContent>

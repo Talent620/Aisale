@@ -27,10 +27,10 @@ type CopilotAction =
     };
 
 const SUGGESTIONS = [
-  "What should I focus on today?",
-  "Summarise the state of the business.",
-  "How can I improve my funnel?",
-  "Which leads are most at risk of going cold?",
+  "Na czym powinienem się dziś skupić?",
+  "Podsumuj stan biznesu.",
+  "Jak mogę poprawić swój lejek?",
+  "Które leady są najbardziej zagrożone wystygnięciem?",
 ];
 
 export function CopilotClient({ greeting }: { greeting: string }) {
@@ -78,12 +78,12 @@ export function CopilotClient({ greeting }: { greeting: string }) {
       setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
       setActions(data.actions ?? []);
     } catch {
-      toast.error("Copilot is unavailable right now.");
+      toast.error("Copilot jest w tej chwili niedostępny.");
       setMessages((m) => [
         ...m,
         {
           role: "assistant",
-          content: "Sorry — I couldn't process that. Please try again.",
+          content: "Przepraszam — nie udało mi się tego przetworzyć. Spróbuj ponownie.",
         },
       ]);
     } finally {
@@ -113,10 +113,10 @@ export function CopilotClient({ greeting }: { greeting: string }) {
         }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Task created");
+      toast.success("Zadanie utworzone");
       setActions((cur) => cur.filter((a) => a.label !== action.label));
     } catch {
-      toast.error("Could not create the task");
+      toast.error("Nie udało się utworzyć zadania");
     } finally {
       setBusyAction(null);
     }
@@ -130,9 +130,9 @@ export function CopilotClient({ greeting }: { greeting: string }) {
             <Sparkles className="h-4 w-4 text-primary" />
           </span>
           <div>
-            <p className="text-sm font-medium leading-none">Sales Copilot</p>
+            <p className="text-sm font-medium leading-none">Copilot sprzedaży</p>
             <p className="text-xs text-muted-foreground">
-              Grounded in your live pipeline data
+              Oparty na danych Twojego lejka na żywo
             </p>
           </div>
         </div>
@@ -181,7 +181,7 @@ export function CopilotClient({ greeting }: { greeting: string }) {
             </span>
             <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-3 text-sm text-muted-foreground">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Thinking…
+              Myślę…
             </div>
           </div>
         ) : null}
@@ -189,7 +189,7 @@ export function CopilotClient({ greeting }: { greeting: string }) {
         {actions.length > 0 && !loading ? (
           <div className="space-y-2 pt-1">
             <p className="px-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              Suggested actions
+              Sugerowane działania
             </p>
             <div className="flex flex-wrap gap-2">
               {actions.map((a) => (
@@ -241,7 +241,7 @@ export function CopilotClient({ greeting }: { greeting: string }) {
                 send(input);
               }
             }}
-            placeholder="Ask about your pipeline, leads, or what to do next…"
+            placeholder="Zapytaj o lejek, leady albo co robić dalej…"
             rows={1}
             className="max-h-32 min-h-[2.5rem] resize-none"
           />
@@ -258,7 +258,7 @@ export function CopilotClient({ greeting }: { greeting: string }) {
           </Button>
         </div>
         <p className="mt-2 text-center text-[11px] text-muted-foreground">
-          Works without an API key (mock mode). Add credentials in Settings for live AI.
+          Działa bez klucza API (tryb testowy). Dodaj dane dostępowe w Ustawieniach, aby włączyć AI na żywo.
         </p>
       </div>
     </Card>

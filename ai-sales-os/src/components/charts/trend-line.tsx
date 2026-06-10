@@ -21,7 +21,7 @@ export function TrendLine({
   height?: number;
 }) {
   const data = points.map((p) => ({
-    date: new Date(p.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    date: new Date(p.date).toLocaleDateString("pl-PL", { month: "short", day: "numeric" }),
     value: p.value,
   }));
   return (
@@ -31,7 +31,7 @@ export function TrendLine({
         <XAxis dataKey="date" tick={{ fontSize: 11, fill: CHART.muted }} axisLine={false} tickLine={false} minTickGap={24} />
         <YAxis tick={{ fontSize: 11, fill: CHART.muted }} axisLine={false} tickLine={false} width={40} />
         <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${CHART.grid}`, fontSize: 12 }} />
-        <Line type="monotone" dataKey="value" stroke={color} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+        <Line type="monotone" dataKey="value" name="Wartość" stroke={color} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
       </LineChart>
     </ResponsiveContainer>
   );

@@ -40,8 +40,8 @@ export default async function GeneratorPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="AI Generator"
-        description="Draft outreach, ads and follow-ups grounded in your lead and offer context."
+        title="Generator AI"
+        description="Twórz wiadomości outreach, reklamy i follow-upy oparte na danych leada i Twojej ofercie."
       />
       <GeneratorClient
         leads={leads}

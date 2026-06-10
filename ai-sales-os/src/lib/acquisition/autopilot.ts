@@ -268,17 +268,17 @@ export async function runAcquisitionTick(args: {
     const totalNewLeads = discovery.totalCreated + prospecting.created;
     if (totalNewLeads > 0 || drafted > 0 || emailsSent > 0) {
       const bits = [
-        totalNewLeads ? `${totalNewLeads} new lead${totalNewLeads === 1 ? "" : "s"}` : "",
-        drafted ? `${drafted} draft${drafted === 1 ? "" : "s"} queued` : "",
-        enrolled ? `${enrolled} enrolled` : "",
-        emailsSent ? `${emailsSent} email${emailsSent === 1 ? "" : "s"} auto-sent` : "",
-        audited ? `${audited} site${audited === 1 ? "" : "s"} audited` : "",
+        totalNewLeads ? `nowe leady: ${totalNewLeads}` : "",
+        drafted ? `szkice w kolejce: ${drafted}` : "",
+        enrolled ? `zapisane do sekwencji: ${enrolled}` : "",
+        emailsSent ? `auto-wysłane e-maile: ${emailsSent}` : "",
+        audited ? `zaudytowane strony: ${audited}` : "",
       ].filter(Boolean);
       await notify({
         companyId,
         type: "SYSTEM",
-        title: "Acquisition autopilot ran",
-        body: `${bits.join(" · ")}${discovery.live ? "" : " · sample data"}. Review drafts in Approvals.`,
+        title: "Autopilot pozyskiwania zakończył cykl",
+        body: `${bits.join(" · ")}${discovery.live ? "" : " · dane przykładowe"}. Przejrzyj szkice w Akceptacjach.`,
         link: drafted ? "/approvals" : "/leads",
       });
     }

@@ -82,12 +82,12 @@ export function PipelineBoard({
         body: JSON.stringify({ stageId }),
       });
       if (!res.ok) throw new Error("Failed to move lead");
-      const stageName = stages.find((s) => s.id === stageId)?.name ?? "stage";
-      toast.success(`Moved to ${stageName}`);
+      const stageName = stages.find((s) => s.id === stageId)?.name ?? "etap";
+      toast.success(`Przeniesiono do „${stageName}”`);
       router.refresh();
     } catch {
       setItems(prev);
-      toast.error("Could not move lead");
+      toast.error("Nie udało się przenieść leada");
     } finally {
       setMoving(null);
     }
@@ -122,7 +122,7 @@ export function PipelineBoard({
               <div className="flex flex-1 flex-col gap-2 p-2">
                 {leadsHere.length === 0 ? (
                   <p className="px-1 py-6 text-center text-xs text-muted-foreground">
-                    No leads here
+                    Brak leadów na tym etapie
                   </p>
                 ) : (
                   leadsHere.map((lead) => (
@@ -160,7 +160,7 @@ export function PipelineBoard({
                           onValueChange={(v) => move(lead.id, v)}
                         >
                           <SelectTrigger className="h-8 text-xs">
-                            <SelectValue placeholder="Move to…" />
+                            <SelectValue placeholder="Przenieś do…" />
                           </SelectTrigger>
                           <SelectContent>
                             {stages.map((s) => (

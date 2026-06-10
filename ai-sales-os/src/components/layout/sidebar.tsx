@@ -52,7 +52,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 
       <div className="border-t border-border p-3">
         <p className="px-2 text-[11px] leading-relaxed text-muted-foreground">
-          Compliant by design — no spam, GDPR-aware outreach.
+          Zgodność w standardzie — bez spamu, kontakt z poszanowaniem RODO.
         </p>
       </div>
     </div>

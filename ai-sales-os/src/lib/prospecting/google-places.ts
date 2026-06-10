@@ -28,11 +28,11 @@ const FIELD_MASK = [
 
 function signalsFor(p: PlaceResult): string[] {
   const signals: string[] = [];
-  if (!p.websiteUri) signals.push("No website — needs one");
-  if ((p.userRatingCount ?? 0) < 10) signals.push("Few Google reviews");
-  if (p.rating != null && p.rating < 4) signals.push(`Rating only ${p.rating.toFixed(1)}★`);
+  if (!p.websiteUri) signals.push("Brak strony WWW — potrzebują jej");
+  if ((p.userRatingCount ?? 0) < 10) signals.push("Mało opinii w Google");
+  if (p.rating != null && p.rating < 4) signals.push(`Ocena tylko ${p.rating.toFixed(1)}★`);
   if (p.websiteUri && /facebook\.com|instagram\.com/i.test(p.websiteUri)) {
-    signals.push("Only a social profile, no real site");
+    signals.push("Tylko profil społecznościowy, brak prawdziwej strony");
   }
   return signals;
 }

@@ -20,7 +20,7 @@ const display = Fraunces({
 export const metadata: Metadata = {
   title: "AI Sales OS",
   description:
-    "AI Sales & Client Acquisition OS — capture, score and convert leads with an AI copilot built for small service teams.",
+    "AI Sales OS — pozyskuj, oceniaj i konwertuj leady z autopilotem AI dla małych firm usługowych.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -48,7 +48,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="pl" suppressHydrationWarning>
       <body className={`${sans.variable} ${display.variable} font-sans antialiased`}>
         <Providers>{children}</Providers>
         <PwaRegister />

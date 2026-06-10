@@ -26,8 +26,8 @@ export async function detectHotLeads({ companyId }: JobContext) {
     data: toCreate.map((l) => ({
       companyId,
       type: "HOT_LEAD" as const,
-      title: `Hot lead: ${l.name}`,
-      body: `${l.companyName ?? "Lead"} reached a score of ${l.score}. Reach out before it cools.`,
+      title: `Gorący lead: ${l.name}`,
+      body: `${l.companyName ?? "Lead"} osiągnął scoring ${l.score}. Odezwij się, zanim ostygnie.`,
       link: `/leads/${l.id}`,
     })),
   });
