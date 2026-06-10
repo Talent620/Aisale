@@ -3,6 +3,7 @@ import { formatDistanceToNow, isPast } from "date-fns";
 import {
   Users,
   Flame,
+  PhoneCall,
   ListChecks,
   Wallet,
   ArrowRight,
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
   if ("res" in a) redirect("/login");
   const { companyId } = a.ctx;
 
-  const [snapshot, funnel, sources, hotLeads, tasks, approvals, activity] = await Promise.all([
+  const [snapshot, funnel, sources, hotLeads, tasks, approvals, activity, callQueue] = await Promise.all([
     computeSnapshot(companyId),
     funnelDistribution(companyId),
     sourceDistribution(companyId),
@@ -61,6 +62,21 @@ export default async function DashboardPage() {
       include: { lead: { select: { id: true, name: true } } },
       orderBy: { createdAt: "desc" },
       take: 7,
+    }),
+    prisma.lead.findMany({
+      where: {
+        companyId,
+        deletedAt: null,
+        outcome: "OPEN",
+        phone: { not: null },
+        callStatus: { in: ["NOT_CALLED", "NO_ANSWER", "VOICEMAIL", "CALLBACK"] },
+      },
+      orderBy: [{ callStatus: "asc" }, { score: "desc" }],
+      take: 5,
+      select: {
+        id: true, name: true, phone: true, score: true, scoreGrade: true,
+        callStatus: true, hasWebsite: true, nextCallAt: true,
+      },
     }),
   ]);
 
@@ -146,8 +162,50 @@ export default async function DashboardPage() {
           </Card>
         </div>
 
-        {/* Right column: hot leads + tasks + approvals */}
+        {/* Right column: call list + hot leads + tasks + approvals */}
         <div className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <PhoneCall className="h-4 w-4 text-primary" /> Call list
+              </CardTitle>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/calls">Queue</Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {callQueue.length === 0 ? (
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                  No one waiting for a call.
+                </p>
+              ) : (
+                callQueue.map((l) => (
+                  <div
+                    key={l.id}
+                    className="flex items-center justify-between gap-3 rounded-md border border-border p-3"
+                  >
+                    <Link href={`/leads/${l.id}`} className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium hover:underline">{l.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {l.hasWebsite === false ? "No website · " : ""}
+                        {l.callStatus === "CALLBACK" && l.nextCallAt
+                          ? `callback ${formatDistanceToNow(new Date(l.nextCallAt), { addSuffix: true })}`
+                          : l.callStatus === "NOT_CALLED"
+                            ? "never called"
+                            : "retry"}
+                      </p>
+                    </Link>
+                    <Button asChild variant="outline" size="sm">
+                      <a href={`tel:${l.phone!.replace(/\s+/g, "")}`}>
+                        <PhoneCall className="h-3.5 w-3.5" /> Call
+                      </a>
+                    </Button>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">

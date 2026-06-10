@@ -58,6 +58,22 @@ Drugie konto (członek zespołu): `weronika@northstar.studio` / `demo1234`.
 
 ---
 
+## Aplikacja na Windows i telefon (PWA)
+
+Narzędzie jest **instalowalną aplikacją (PWA)** — jeden kod działa jako aplikacja okienkowa na Windows/macOS i jako aplikacja na telefonie:
+
+- **Windows / macOS:** otwórz aplikację w **Edge lub Chrome** → ikona „Zainstaluj aplikację" w pasku adresu (lub menu ⋯ → *Aplikacje → Zainstaluj*). Dostajesz osobne okno bez przeglądarki, ikonę w Menu Start / Docku i skróty (kolejka telefoniczna, Lead Finder, Approvals) pod prawym przyciskiem na ikonie.
+- **Android:** Chrome → menu ⋮ → **„Dodaj do ekranu głównego" / „Zainstaluj aplikację"**.
+- **iPhone/iPad:** Safari → Udostępnij → **„Dodaj do ekranu początkowego"**.
+
+Na telefonie interfejs ma **dolny pasek nawigacji** (Home / Leads / Calls / Finder / Menu) jak w aplikacji natywnej, a kolejka telefoniczna dzwoni jednym tapnięciem (`tel:`). Service worker cache'uje statyki i pokazuje stronę offline przy braku sieci (dane CRM zawsze na żywo).
+
+**Szybka nawigacja:** `Ctrl+K` / `⌘K` z dowolnego miejsca — globalna wyszukiwarka leadów (nazwa, firma, telefon, e-mail) i skok do każdej strony bez myszki.
+
+> PWA wymaga HTTPS w produkcji (Vercel daje to od razu); lokalnie działa na `http://localhost`.
+
+---
+
 ## Tryby AI
 
 Aplikacja domyślnie używa wbudowanego silnika **mock** — wszystko (generator, Copilot, scoring) działa bez klucza i bez internetu. Aby włączyć prawdziwy model, ustaw w `.env`:

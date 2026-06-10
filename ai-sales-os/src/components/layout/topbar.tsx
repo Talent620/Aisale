@@ -16,6 +16,7 @@ import {
 import { initials } from "@/lib/utils";
 import { useUiStore } from "@/store/ui-store";
 import { NotificationBell } from "./notification-bell";
+import { SearchTrigger } from "./command-palette";
 
 export function Topbar({
   user,
@@ -42,6 +43,8 @@ export function Topbar({
         <p className="truncate text-sm font-medium text-foreground">{companyName}</p>
         <p className="truncate text-xs text-muted-foreground">Sales &amp; acquisition workspace</p>
       </div>
+
+      <SearchTrigger />
 
       <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
         <Link href="/copilot">
