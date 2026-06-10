@@ -33,6 +33,7 @@ import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
+import { CsvImportDialog } from "@/components/leads/csv-import-dialog";
 import { ScoreBadge } from "@/components/score-badge";
 import { PriorityBadge } from "@/components/priority-badge";
 import { SourceBadge } from "@/components/status-badges";
@@ -128,6 +129,12 @@ export function LeadsClient({ stages }: { stages: StageOpt[] }) {
   return (
     <div className="space-y-6">
       <PageHeader title="Leads" description="Every prospect, scored and prioritised automatically.">
+        <CsvImportDialog
+          onImported={() => {
+            load();
+            router.refresh();
+          }}
+        />
         <LeadDialog
           stages={stages}
           open={dialogOpen}

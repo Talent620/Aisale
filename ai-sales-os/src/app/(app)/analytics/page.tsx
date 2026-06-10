@@ -18,6 +18,8 @@ import { SourceBar } from "@/components/charts/source-bar";
 import { GradeDonut } from "@/components/charts/grade-donut";
 import { TrendLine } from "@/components/charts/trend-line";
 import { CHART } from "@/components/charts/chart-theme";
+import { ChannelPerformance, type ChannelRow } from "@/components/charts/channel-performance";
+import type { LeadSource } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +35,12 @@ export default async function AnalyticsPage() {
   if ("res" in a) redirect("/login");
   const { companyId } = a.ctx;
 
-  const [snapshot, funnel, sources, gradeGroups, snapshots, decisions] =
+  const windowStart = new Date(Date.now() - 90 * 86_400_000);
+  const costWindowStart = new Date(windowStart);
+  costWindowStart.setUTCDate(1);
+  costWindowStart.setUTCHours(0, 0, 0, 0);
+
+  const [snapshot, funnel, sources, gradeGroups, snapshots, decisions, perSource, perSourceWon, costs] =
     await Promise.all([
       computeSnapshot(companyId),
       funnelDistribution(companyId),
@@ -53,7 +60,43 @@ export default async function AnalyticsPage() {
         orderBy: { createdAt: "desc" },
         take: 8,
       }),
+      prisma.lead.groupBy({
+        by: ["source"],
+        where: { companyId, deletedAt: null, createdAt: { gte: windowStart } },
+        _count: { _all: true },
+      }),
+      prisma.lead.groupBy({
+        by: ["source"],
+        where: { companyId, deletedAt: null, createdAt: { gte: windowStart }, outcome: "WON" },
+        _count: { _all: true },
+      }),
+      prisma.channelCost.findMany({
+        where: { companyId, month: { gte: costWindowStart } },
+      }),
     ]);
+
+  // Channel effectiveness: leads/won/conversion + spend → CPL & cost-per-won.
+  const wonBySource = new Map(perSourceWon.map((g) => [g.source, g._count._all]));
+  const costBySource = new Map<LeadSource, number>();
+  for (const c of costs) {
+    costBySource.set(c.source, (costBySource.get(c.source) ?? 0) + c.amount);
+  }
+  const channelRows: ChannelRow[] = perSource
+    .map((g) => {
+      const leads = g._count._all;
+      const won = wonBySource.get(g.source) ?? 0;
+      const cost = costBySource.get(g.source) ?? 0;
+      return {
+        source: g.source,
+        leads,
+        won,
+        conversion: leads ? won / leads : 0,
+        cost,
+        cpl: cost && leads ? cost / leads : null,
+        costPerWon: cost && won ? cost / won : null,
+      };
+    })
+    .sort((a, b) => b.leads - a.leads);
 
   const gradeData = gradeGroups.map((g) => ({
     grade: g.scoreGrade,
@@ -144,6 +187,8 @@ export default async function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <ChannelPerformance rows={channelRows} currency={snapshot.currency} />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>

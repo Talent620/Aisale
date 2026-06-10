@@ -64,6 +64,9 @@ export function enrichCandidate(c: ProspectCandidate): CandidateEnrichment {
   if (intentScore >= 70) tags.push("high-intent");
   else if (intentScore >= 40) tags.push("warm-intent");
   if (c.companySize) tags.push(`size:${c.companySize}`);
+  if (SENIOR_HINTS.some((h) => (c.position ?? "").toLowerCase().includes(h))) {
+    tags.push("decision-maker");
+  }
 
   const contextParts = [
     c.position && c.companyName ? `${c.position} at ${c.companyName}` : c.companyName ?? "",

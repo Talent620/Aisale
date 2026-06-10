@@ -251,6 +251,8 @@ model Company {
   callLogs            CallLog[]
   websiteAudits       WebsiteAudit[]
   socialPosts         SocialPost[]
+  apiKeys             ApiKey[]
+  channelCosts        ChannelCost[]
 }
 
 model User {
@@ -336,6 +338,12 @@ model Lead {
   // Website qualification (latest audit denormalized; history in WebsiteAudit)
   hasWebsite      Boolean?     // null = unknown, false = no site (prime lead!)
   auditScore      Int?         // 0..100 overall website health from last audit
+  // GDPR / marketing consent (source + timestamp recorded for the audit trail)
+  marketingConsent Boolean     @default(false)
+  consentAt        DateTime?
+  consentSource    String?     // e.g. "landing:northstar-studio", "csv-import", "api"
+  // Free-form custom fields (key → value), editable on the lead card
+  customFields     Json?
 
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -737,6 +745,41 @@ model AiDecisionLog {
   user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([companyId, createdAt])
+}
+
+/// Hashed API key for the public REST API (`/api/v1/*`). The plaintext key is
+/// shown exactly once at creation; only the SHA-256 digest is stored.
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  prefix     String    // first chars of the key, for identification in the UI
+  keyHash    String    @unique // sha256(plaintext)
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+/// Monthly marketing spend per acquisition channel — powers CPL and
+/// cost-per-won in the channel performance report.
+model ChannelCost {
+  id        String     @id @default(cuid())
+  source    LeadSource
+  month     DateTime   // first day of the month (UTC midnight)
+  amount    Int        // spend in main currency units (e.g. PLN)
+  note      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  companyId String
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, source, month])
+  @@index([companyId, month])
 }
 
 model Integration {

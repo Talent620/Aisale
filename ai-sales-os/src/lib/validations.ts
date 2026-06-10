@@ -55,7 +55,10 @@ export const leadCreateSchema = z.object({
 });
 export type LeadCreateInput = z.infer<typeof leadCreateSchema>;
 
-export const leadUpdateSchema = leadCreateSchema.partial();
+export const leadUpdateSchema = leadCreateSchema.partial().extend({
+  customFields: z.record(z.string().max(60), z.string().max(500)).optional(),
+  marketingConsent: z.boolean().optional(),
+});
 
 export const noteCreateSchema = z.object({
   body: z.string().trim().min(1, "Note can't be empty").max(5000),

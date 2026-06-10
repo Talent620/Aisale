@@ -194,7 +194,14 @@ function buildMoves(input: PlaybookInput): PlaybookMove[] {
   const moves: PlaybookMove[] = [];
   const touches = lead.callAttempts + input.emailsSent;
 
-  if (lead.auditScore == null && lead.hasWebsite !== false) {
+  // Suggest the audit before fresh pitches — but not for retry states, where
+  // the moves below already cover sending the audit between attempts.
+  if (
+    lead.auditScore == null &&
+    lead.hasWebsite !== false &&
+    lead.callStatus !== "NO_ANSWER" &&
+    lead.callStatus !== "VOICEMAIL"
+  ) {
     moves.push({
       title: "Run the website audit first",
       detail:

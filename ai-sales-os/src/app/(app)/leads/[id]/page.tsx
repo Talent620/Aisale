@@ -27,6 +27,7 @@ import { PriorityBadge } from "@/components/priority-badge";
 import { OutcomeBadge, SourceBadge, TaskStatusBadge } from "@/components/status-badges";
 import { LeadActions } from "@/components/leads/lead-actions";
 import { AuditCard } from "@/components/leads/audit-card";
+import { CustomFieldsCard } from "@/components/leads/custom-fields-card";
 import { CallPanel } from "@/components/leads/call-panel";
 import { PlaybookCard } from "@/components/leads/playbook-card";
 import { buildPlaybook } from "@/lib/playbook";
@@ -180,8 +181,30 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                   {lead.lastContactedAt ? formatDistanceToNow(new Date(lead.lastContactedAt), { addSuffix: true }) : "Never"}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Marketing consent</span>
+                {lead.marketingConsent ? (
+                  <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+                    Yes · {lead.consentSource ?? "recorded"}
+                    {lead.consentAt ? ` · ${format(new Date(lead.consentAt), "d MMM yyyy")}` : ""}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">No consent on file</Badge>
+                )}
+              </div>
+              <Separator />
+              <Button asChild variant="outline" size="sm" className="w-full">
+                <a href={`/api/leads/${lead.id}/export`} download>
+                  Export all data (GDPR JSON)
+                </a>
+              </Button>
             </CardContent>
           </Card>
+
+          <CustomFieldsCard
+            leadId={lead.id}
+            fields={(lead.customFields ?? {}) as Record<string, string>}
+          />
 
           <Card>
             <CardHeader>

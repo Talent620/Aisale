@@ -63,6 +63,9 @@ export async function ingestLead(args: {
   autoDraft?: boolean;
   /** Skip the per-lead notification (used for bulk discovery). */
   silent?: boolean;
+  /** GDPR: marketing consent flag + where it was collected. */
+  marketingConsent?: boolean;
+  consentSource?: string | null;
 }): Promise<IngestResult> {
   const { companyId, input, source } = args;
   const sourceLabel = LEAD_SOURCE_LABELS[source] ?? "Inbound";
@@ -105,17 +108,19 @@ export async function ingestLead(args: {
     };
   }
 
-  // --- Assign an owner (first member of the workspace) ---
-  const owner =
-    args.ownerId ??
-    (
-      await prisma.user.findFirst({
-        where: { companyId },
-        orderBy: { createdAt: "asc" },
-        select: { id: true },
-      })
-    )?.id ??
-    null;
+  // --- Assign an owner: round-robin by open-lead load, so a multi-person
+  // team gets a fair spread instead of everything landing on the founder ---
+  let owner = args.ownerId ?? null;
+  if (!owner) {
+    const users = await prisma.user.findMany({
+      where: { companyId },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, _count: { select: { ownedLeads: { where: { deletedAt: null, outcome: "OPEN" } } } } },
+    });
+    owner = users.length
+      ? users.reduce((min, u) => (u._count.ownedLeads < min._count.ownedLeads ? u : min), users[0]).id
+      : null;
+  }
 
   const name = cleanName(input);
 
@@ -140,6 +145,9 @@ export async function ingestLead(args: {
       tags: args.tags ?? [],
       nextActionAt: new Date(),
       nextActionNote: "Respond to new lead",
+      marketingConsent: args.marketingConsent ?? false,
+      consentAt: args.marketingConsent ? new Date() : null,
+      consentSource: args.marketingConsent ? args.consentSource ?? sourceLabel : null,
     },
   });
 

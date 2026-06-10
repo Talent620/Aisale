@@ -59,6 +59,9 @@ export async function POST(req: Request) {
       input: { ...parsed.data, email: parsed.data.email || null },
       source: "INBOUND_FORM",
       autoDraft: company.autoDraft,
+      marketingConsent: body.marketingConsent === true || body.consent === true,
+      consentSource:
+        typeof body.consentSource === "string" ? body.consentSource.slice(0, 120) : "public-form",
     });
     return NextResponse.json(
       { ok: true, leadId: r.leadId, deduped: r.deduped },

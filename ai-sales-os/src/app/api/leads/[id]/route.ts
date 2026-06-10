@@ -35,10 +35,21 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     });
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const { email, ...rest } = b.data;
+    const { email, marketingConsent, ...rest } = b.data;
     const updated = await prisma.lead.update({
       where: { id: params.id },
-      data: { ...rest, ...(email !== undefined ? { email: email || null } : {}) },
+      data: {
+        ...rest,
+        ...(email !== undefined ? { email: email || null } : {}),
+        // Consent changes stamp the GDPR audit trail (who/when/where).
+        ...(marketingConsent !== undefined
+          ? {
+              marketingConsent,
+              consentAt: marketingConsent ? new Date() : null,
+              consentSource: marketingConsent ? "manual" : null,
+            }
+          : {}),
+      },
     });
 
     const score = await recomputeLeadScore(updated);
